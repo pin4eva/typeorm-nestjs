@@ -1,6 +1,10 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Raw, Repository } from "typeorm";
 import { CreateSessionInput, UpdateSessionInput } from "../dtos/session.dto";
 import { Session } from "../entities/sessions.entity";
 
@@ -13,7 +17,26 @@ export class SessionService {
   // Create Session
   async createSession(input: CreateSessionInput): Promise<Session> {
     try {
-      const session = this.sessionRepo.create(input);
+      let session = await this.sessionRepo.findOne({
+        where: [
+          {
+            name: Raw(
+              (alias) =>
+                `LOWER(${alias}) LIKE '%${input.name.toLowerCase()}%' `,
+            ),
+          },
+          {
+            year: input.year,
+          },
+        ],
+      });
+
+      if (session)
+        throw new BadRequestException(
+          "Session already exist. Duplicate name or year",
+        );
+
+      session = this.sessionRepo.create(input);
 
       await this.sessionRepo.save(session);
 
@@ -68,7 +91,10 @@ export class SessionService {
   // Get Session
   async getSession(id: string): Promise<Session> {
     try {
-      const session = await this.sessionRepo.findOneBy({ id });
+      const session = await this.sessionRepo.findOne({
+        where: { id },
+        relations: ["classes"],
+      });
       if (!session) throw new NotFoundException("Session not found");
       return session;
     } catch (error) {

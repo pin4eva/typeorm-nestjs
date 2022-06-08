@@ -24,6 +24,7 @@ export class CreateProfileInput extends PartialType(
       "id",
       "student",
       "family",
+      "classes",
     ],
     InputType,
   ),

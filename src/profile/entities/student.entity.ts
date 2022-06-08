@@ -13,7 +13,7 @@ import { Profile } from "./profile.entity";
 @ObjectType()
 @Entity()
 export class Student {
-  @Field()
+  @Field(() => ClassRoom)
   @OneToMany(() => ClassRoom, (inverse) => inverse.students)
   class: ClassRoom;
   @Field(() => String)

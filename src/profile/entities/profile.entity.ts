@@ -1,4 +1,5 @@
 import { Field, ObjectType } from "@nestjs/graphql";
+import { ClassRoom } from "src/class/entities/class.entity";
 import {
   AfterUpdate,
   BeforeInsert,
@@ -7,6 +8,7 @@ import {
   EntitySubscriberInterface,
   EventSubscriber,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
@@ -83,7 +85,9 @@ export class Profile {
   @Field(() => Student)
   @OneToOne(() => Student, (student) => student.profile)
   student: Student;
-
+  @Field(() => [ClassRoom])
+  @OneToMany(() => ClassRoom, (inverse) => inverse.teacher)
+  classes: ClassRoom[];
   @Field()
   @Column()
   gender: string;

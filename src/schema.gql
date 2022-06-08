@@ -127,6 +127,7 @@ type Profile {
   accountType: String!
   accountTypes: [String!]!
   address: String!
+  classes: [ClassRoom!]!
   dob: DateTime!
   email: String
   family: Family

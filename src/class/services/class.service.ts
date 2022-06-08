@@ -1,5 +1,12 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  CACHE_MANAGER,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { Cache } from "cache-manager";
 import { ProfileService } from "src/profile/services/profile.service";
 import { Repository } from "typeorm";
 import { CreateClassInput, UpdateClassInput } from "../dtos/class.dto";
@@ -13,6 +20,7 @@ export class ClassService {
     private readonly classRepo: Repository<ClassRoom>,
     private readonly profileService: ProfileService,
     private readonly sessionService: SessionService,
+    @Inject(CACHE_MANAGER) private readonly cache: Cache,
   ) {}
 
   // Create class
@@ -20,6 +28,14 @@ export class ClassService {
     try {
       const teacher = await this.profileService.getProfile(input.teacher);
       const session = await this.sessionService.getSession(input.session);
+
+      const isDuplicate = session?.classes?.some(
+        (c) => c.name.toLowerCase() === input.name.toLowerCase(),
+      );
+
+      if (isDuplicate) {
+        throw new BadRequestException("Class already exist with the same name");
+      }
       const Class = this.classRepo.create({ name: input.name });
       Class.teacher = teacher;
       Class.session = session;

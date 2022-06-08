@@ -4,10 +4,8 @@ import { Student } from "src/profile/entities/student.entity";
 import {
   Column,
   Entity,
-  JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Session } from "./sessions.entity";
@@ -24,12 +22,13 @@ export class ClassRoom {
   name: string;
 
   @Field(() => Session, { nullable: true })
-  @ManyToOne(() => Session, (inverse) => inverse.classes)
+  @ManyToOne(() => Session, (inverse) => inverse.classes, {
+    onDelete: "CASCADE",
+  })
   session: Session;
 
   @Field(() => Profile, { nullable: true })
-  @OneToOne(() => Profile)
-  @JoinColumn()
+  @ManyToOne(() => Profile, (inverse) => inverse.classes)
   teacher: Profile;
 
   @Field(() => [Student], { nullable: true })
