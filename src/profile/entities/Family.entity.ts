@@ -1,11 +1,5 @@
 import { Field, ObjectType } from "@nestjs/graphql";
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { FamilyMember } from "./FamilyMember.entity";
 import { Profile } from "./profile.entity";
 
@@ -25,20 +19,7 @@ export class Family {
   })
   members: FamilyMember[];
   @Field(() => [Profile])
-  @ManyToOne(() => Profile)
-  profiles: Profile[];
-
   @Field()
   @Column({ unique: true })
   familyCode: string;
-
-  // @BeforeInsert()
-  // changeId() {
-  //   this.id = nanoid(32);
-  // }
-
-  // @AfterLoad()
-  // getFundCode() {
-  //   console.log(this.familyName);
-  // }
 }

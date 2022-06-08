@@ -21,6 +21,10 @@ export class FamilyResolver {
   getFamily(@Args("id") id: string) {
     return this.familyService.getFamily(id);
   }
+  @Query(() => Family)
+  getFamilyByFamilyCode(@Args("familyCode") familyCode: string) {
+    return this.familyService.getFamilyByFamilyCode(familyCode);
+  }
   @Mutation(() => Family)
   async createFamily(@Args("input") input: CreateFamilyInput) {
     return this.familyService.createFamily(input);

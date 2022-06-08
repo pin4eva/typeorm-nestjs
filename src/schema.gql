@@ -54,7 +54,6 @@ type Family {
   familyName: String!
   id: String!
   members: [FamilyMember!]!
-  profiles: [Profile!]!
 }
 
 type FamilyMember {
@@ -129,6 +128,7 @@ type Query {
   getAuths: [Auth!]
   getFamilies: [Family!]!
   getFamily(id: String!): Family!
+  getFamilyByFamilyCode(familyCode: String!): Family!
   getFamilyMembers: [FamilyMember!]!
   getProfile(id: String!): Profile!
   getProfiles: [Profile!]!

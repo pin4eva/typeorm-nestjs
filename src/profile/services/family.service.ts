@@ -60,7 +60,18 @@ export class FamilyService {
   // Get Family
   async getFamily(id: string): Promise<Family> {
     try {
-      const family = await this.familyRepo.findOneOrFail({ where: { id } });
+      const family = await this.familyRepo.findOne({ where: { id } });
+      if (!family) throw new NotFoundException("Family id not correct");
+      return family;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Get Family By FamilyCode
+  async getFamilyByFamilyCode(familyCode: string): Promise<Family> {
+    try {
+      const family = await this.familyRepo.findOneBy({ familyCode });
       return family;
     } catch (error) {
       throw error;
@@ -132,6 +143,7 @@ export class FamilyService {
 
       const profile = await this.profileRepo.findOneBy({ id: input.profile });
       const family = await this.getFamily(input.family);
+
       const member = this.memberRepo.create({ role: input.role });
       member.family = family;
       member.profile = profile;

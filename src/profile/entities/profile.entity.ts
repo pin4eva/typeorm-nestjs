@@ -7,7 +7,6 @@ import {
   EntitySubscriberInterface,
   EventSubscriber,
   JoinColumn,
-  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
@@ -100,9 +99,11 @@ export class Profile {
   @Field()
   @Column({ nullable: true })
   lga: string;
-  @OneToMany(() => Family, (family) => family.members, { onDelete: "SET NULL" })
-  @JoinColumn()
+  @OneToOne(() => Family, (family) => family.id, {
+    onDelete: "SET NULL",
+  })
   @Field(() => Family, { nullable: true })
+  @JoinColumn()
   family: Family;
   @BeforeInsert()
   @AfterUpdate()

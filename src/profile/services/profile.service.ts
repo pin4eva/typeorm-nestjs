@@ -67,7 +67,7 @@ export class ProfileService {
         const family = await this.familyService.getFamily(familyId);
         await this.familyService.createFamilyMember({
           profile: user.id,
-          family: familyId,
+          family: family.id,
           role: familyRole,
         });
         user.family = family;
@@ -84,7 +84,7 @@ export class ProfileService {
 
   async getProfiles(): Promise<Profile[]> {
     try {
-      const profiles = await this.profileRepo.find();
+      const profiles = await this.profileRepo.find({ relations: ["family"] });
 
       return profiles;
     } catch (error) {
