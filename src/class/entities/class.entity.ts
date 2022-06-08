@@ -4,6 +4,7 @@ import { Student } from "src/profile/entities/student.entity";
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -13,7 +14,7 @@ import { Session } from "./sessions.entity";
 
 @ObjectType()
 @Entity()
-export class Class {
+export class ClassRoom {
   @Field()
   @PrimaryGeneratedColumn("uuid")
   id: string;
@@ -22,15 +23,16 @@ export class Class {
   @Column()
   name: string;
 
-  @Field(() => Session)
+  @Field(() => Session, { nullable: true })
   @ManyToOne(() => Session, (inverse) => inverse.classes)
   session: Session;
 
-  @Field(() => Profile)
+  @Field(() => Profile, { nullable: true })
   @OneToOne(() => Profile)
+  @JoinColumn()
   teacher: Profile;
 
-  @Field(() => [Student])
+  @Field(() => [Student], { nullable: true })
   @OneToMany(() => Student, (inverse) => inverse.class)
   students: Student[];
 }

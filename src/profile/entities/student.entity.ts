@@ -1,5 +1,5 @@
 import { Field, ObjectType } from "@nestjs/graphql";
-import { Class } from "src/class/entities/class.entity";
+import { ClassRoom } from "src/class/entities/class.entity";
 import {
   Column,
   Entity,
@@ -14,8 +14,8 @@ import { Profile } from "./profile.entity";
 @Entity()
 export class Student {
   @Field()
-  @OneToMany(() => Class, (inverse) => inverse.students)
-  class: Class;
+  @OneToMany(() => ClassRoom, (inverse) => inverse.students)
+  class: ClassRoom;
   @Field(() => String)
   @PrimaryGeneratedColumn("uuid")
   id: string;

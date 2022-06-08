@@ -14,12 +14,18 @@ input ChangeAuthPasswordInput {
   password: String!
 }
 
-type Class {
+type ClassRoom {
   id: String!
   name: String!
-  session: Session!
-  students: [Student!]!
-  teacher: Profile!
+  session: Session
+  students: [Student!]
+  teacher: Profile
+}
+
+input CreateClassInput {
+  name: String!
+  session: String!
+  teacher: String!
 }
 
 input CreateFamilyInput {
@@ -93,12 +99,14 @@ type LoginResponse {
 
 type Mutation {
   changeAuthPassword(input: ChangeAuthPasswordInput!): Boolean!
+  createClass(input: CreateClassInput!): ClassRoom!
   createFamily(input: CreateFamilyInput!): Family!
   createFamilyMember(input: CreateFamilyMemberInput!): FamilyMember!
   createProfile(input: CreateProfileInput!): Profile!
   createSession(input: CreateSessionInput!): Session!
   deleteAllProfile: [Profile!]!
   deleteAuth(id: String!): Auth!
+  deleteClass(id: String!): ClassRoom!
   deleteFamily(id: String!): Family!
   deleteFamilyMember(id: String!): FamilyMember!
   deleteProfile(id: String!): Profile!
@@ -108,6 +116,7 @@ type Mutation {
   resetPassword(email: String!): Boolean!
   setCurrentSession(id: String!): Boolean!
   signup(input: SignupInput!): Auth!
+  updateClass(input: UpdateClassInput!): ClassRoom!
   updateFamily(input: UpdateFamilyInput!): Family!
   updateFamilyMember(input: UpdateFamilyMemberInput!): FamilyMember!
   updateProfile(input: UpdateProfileInput!): Profile!
@@ -143,6 +152,8 @@ type Profile {
 
 type Query {
   getAuths: [Auth!]
+  getClass(id: String!): ClassRoom!
+  getClasses: [ClassRoom!]!
   getFamilies: [Family!]!
   getFamily(id: String!): Family!
   getFamilyByFamilyCode(familyCode: String!): Family!
@@ -157,7 +168,7 @@ type Query {
 }
 
 type Session {
-  classes: [Class!]!
+  classes: [ClassRoom!]!
   id: String!
   isCurrent: Boolean!
   name: String!
@@ -170,12 +181,17 @@ input SignupInput {
 }
 
 type Student {
-  class: Class!
+  class: ClassRoom!
   id: String!
   profile: Profile!
   regNo: String!
   status: String!
   subjects: [String!]!
+}
+
+input UpdateClassInput {
+  id: String!
+  name: String!
 }
 
 input UpdateFamilyInput {

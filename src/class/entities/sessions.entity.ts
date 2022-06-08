@@ -1,6 +1,6 @@
 import { Field, Int, ObjectType } from "@nestjs/graphql";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Class } from "./class.entity";
+import { ClassRoom } from "./class.entity";
 
 @ObjectType()
 @Entity()
@@ -17,9 +17,9 @@ export class Session {
   @Column({ unique: true })
   name: string;
 
-  @Field(() => [Class])
-  @OneToMany(() => Class, (inverse) => inverse.session)
-  classes: Class[];
+  @Field(() => [ClassRoom])
+  @OneToMany(() => ClassRoom, (inverse) => inverse.session)
+  classes: ClassRoom[];
 
   @Field()
   @Column({ default: false })
