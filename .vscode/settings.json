@@ -1,0 +1,7 @@
+{
+  "search.exclude": {
+    "**/build": true,
+    "**/dist": true
+  },
+  "typescript.preferences.includePackageJsonAutoImports": "on"
+}

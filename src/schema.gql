@@ -1,0 +1,182 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Auth {
+  email: String!
+  id: String!
+  profile: Profile!
+}
+
+input ChangeAuthPasswordInput {
+  id: ID!
+  oldPassword: String!
+  password: String!
+}
+
+input CreateFamilyInput {
+  familyName: String!
+}
+
+input CreateFamilyMemberInput {
+  family: ID!
+  profile: ID!
+  role: String!
+}
+
+input CreateProfileInput {
+  accountType: String
+  address: String
+  dob: DateTime
+  email: String
+  familyId: String
+  familyRole: String
+  firstName: String!
+  gender: String
+  image: String
+  lastName: String!
+  lga: String
+  middleName: String!
+  name: String
+  occupation: String
+  otherName: String
+  phone: String
+  state: String
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Family {
+  familyCode: String!
+  familyName: String!
+  id: String!
+  members: [FamilyMember!]!
+  profiles: [Profile!]!
+}
+
+type FamilyMember {
+  family: Family!
+  id: String!
+  profile: Profile!
+  role: String!
+}
+
+input ForgotPasswordInput {
+  emailToken: String!
+  password: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type LoginResponse {
+  id: String!
+  token: String!
+}
+
+type Mutation {
+  changeAuthPassword(input: ChangeAuthPasswordInput!): Boolean!
+  createFamily(input: CreateFamilyInput!): Family!
+  createFamilyMember(input: CreateFamilyMemberInput!): FamilyMember!
+  createProfile(input: CreateProfileInput!): Profile!
+  deleteAllProfile: [Profile!]!
+  deleteAuth(id: String!): Auth!
+  deleteFamily(id: String!): Family!
+  deleteFamilyMember(id: String!): FamilyMember!
+  deleteProfile(id: String!): Profile!
+  forgotPassword(input: ForgotPasswordInput!): Boolean!
+  login(input: LoginInput!): LoginResponse!
+  resetPassword(email: String!): Boolean!
+  signup(input: SignupInput!): Auth!
+  updateFamily(input: UpdateFamilyInput!): Family!
+  updateFamilyMember(input: UpdateFamilyMemberInput!): FamilyMember!
+  updateProfile(input: UpdateProfileInput!): Profile!
+}
+
+type Profile {
+  accountType: String!
+  accountTypes: [String!]!
+  address: String!
+  dob: DateTime!
+  email: String
+  family: Family
+  firstName: String!
+  gender: String!
+  id: String!
+  image: String
+  isActive: Boolean!
+  isEmailVerified: Boolean!
+  isPhoneVerified: Boolean!
+  lastName: String!
+  lastSeen: DateTime!
+  lga: String!
+  middleName: String!
+  name: String!
+  occupation: String!
+  otherName: String!
+  phone: String!
+  role: String!
+  state: String!
+  student: Student!
+}
+
+type Query {
+  getAuths: [Auth!]
+  getFamilies: [Family!]!
+  getFamily(id: String!): Family!
+  getFamilyMembers: [FamilyMember!]!
+  getProfile(id: String!): Profile!
+  getProfiles: [Profile!]!
+  me: Profile!
+  searchProfilesByName(name: String!): [Profile!]!
+  sendInvit(id: String!): Boolean!
+}
+
+input SignupInput {
+  password: String!
+  profileId: String!
+}
+
+type Student {
+  id: String!
+  profile: Profile!
+  regNo: String!
+  status: String!
+  subjects: [String!]!
+}
+
+input UpdateFamilyInput {
+  familyName: String!
+  id: String!
+}
+
+input UpdateFamilyMemberInput {
+  id: ID!
+  role: String!
+}
+
+input UpdateProfileInput {
+  accountType: String
+  address: String
+  dob: DateTime
+  email: String
+  familyId: String
+  familyRole: String
+  firstName: String
+  gender: String
+  id: String!
+  image: String
+  lastName: String
+  lga: String
+  middleName: String
+  name: String
+  occupation: String
+  otherName: String
+  phone: String
+  state: String
+}
