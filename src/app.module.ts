@@ -9,6 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProfileModule } from './profile/profile.module';
 import { CurrentUserMiddleware } from './middlewares/current-user.middleware';
 import { ProfileSubscriber } from './profile/entities/profile.entity';
+import { ClassModule } from './class/class.module';
 
 @Module({
   controllers: [AppController],
@@ -31,6 +32,7 @@ import { ProfileSubscriber } from './profile/entities/profile.entity';
     }),
     CacheModule.register({ isGlobal: true }),
     ProfileModule,
+    ClassModule,
   ],
 })
 export class AppModule {

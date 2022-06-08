@@ -99,7 +99,7 @@ export class Profile {
   @Field()
   @Column({ nullable: true })
   lga: string;
-  @OneToOne(() => Family, (family) => family.id, {
+  @OneToOne(() => Family, {
     onDelete: "SET NULL",
   })
   @Field(() => Family, { nullable: true })

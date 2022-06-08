@@ -14,6 +14,14 @@ input ChangeAuthPasswordInput {
   password: String!
 }
 
+type Class {
+  id: String!
+  name: String!
+  session: Session!
+  students: [Student!]!
+  teacher: Profile!
+}
+
 input CreateFamilyInput {
   familyName: String!
 }
@@ -42,6 +50,11 @@ input CreateProfileInput {
   otherName: String
   phone: String
   state: String
+}
+
+input CreateSessionInput {
+  name: String!
+  year: Int!
 }
 
 """
@@ -83,18 +96,22 @@ type Mutation {
   createFamily(input: CreateFamilyInput!): Family!
   createFamilyMember(input: CreateFamilyMemberInput!): FamilyMember!
   createProfile(input: CreateProfileInput!): Profile!
+  createSession(input: CreateSessionInput!): Session!
   deleteAllProfile: [Profile!]!
   deleteAuth(id: String!): Auth!
   deleteFamily(id: String!): Family!
   deleteFamilyMember(id: String!): FamilyMember!
   deleteProfile(id: String!): Profile!
+  deleteSession(id: String!): Session!
   forgotPassword(input: ForgotPasswordInput!): Boolean!
   login(input: LoginInput!): LoginResponse!
   resetPassword(email: String!): Boolean!
+  setCurrentSession(id: String!): Boolean!
   signup(input: SignupInput!): Auth!
   updateFamily(input: UpdateFamilyInput!): Family!
   updateFamilyMember(input: UpdateFamilyMemberInput!): FamilyMember!
   updateProfile(input: UpdateProfileInput!): Profile!
+  updateSession(input: UpdateSessionInput!): Session!
 }
 
 type Profile {
@@ -132,9 +149,19 @@ type Query {
   getFamilyMembers: [FamilyMember!]!
   getProfile(id: String!): Profile!
   getProfiles: [Profile!]!
+  getSession(id: String!): Session!
+  getSessions: [Session!]!
   me: Profile!
   searchProfilesByName(name: String!): [Profile!]!
   sendInvit(id: String!): Boolean!
+}
+
+type Session {
+  classes: [Class!]!
+  id: String!
+  isCurrent: Boolean!
+  name: String!
+  year: Int!
 }
 
 input SignupInput {
@@ -143,6 +170,7 @@ input SignupInput {
 }
 
 type Student {
+  class: Class!
   id: String!
   profile: Profile!
   regNo: String!
@@ -179,4 +207,10 @@ input UpdateProfileInput {
   otherName: String
   phone: String
   state: String
+}
+
+input UpdateSessionInput {
+  id: ID!
+  name: String!
+  year: Int!
 }
