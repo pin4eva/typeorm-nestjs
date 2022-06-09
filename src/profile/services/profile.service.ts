@@ -5,13 +5,17 @@ import {
   CACHE_MANAGER,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Cache } from "cache-manager";
 import { verify } from "jsonwebtoken";
+import { ClassRoom } from "src/class/entities/class.entity";
+import { Student } from "src/class/entities/student.entity";
 import { config } from "src/utils";
 import { cloudinaryUpload } from "src/utils/cloudinary";
+import { generateFullName, generateID } from "src/utils/helpers";
 import { Raw, Repository } from "typeorm";
 import {
   CreateProfileInput,
@@ -29,12 +33,24 @@ export class ProfileService {
     private readonly profileRepo: Repository<Profile>,
     private readonly familyService: FamilyService,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
+    @InjectRepository(Student)
+    private readonly studentRepo: Repository<Student>,
+    @InjectRepository(ClassRoom)
+    private readonly classRepo: Repository<ClassRoom>,
   ) {}
+  private readonly logger = new Logger(ProfileService.name);
 
   async createProfile(input: CreateProfileInput): Promise<Profile> {
     const { email, accountType } = input;
+    const id = generateID();
+    const name = generateFullName({
+      firstName: input?.firstName,
+      middleName: input.middleName,
+      otherName: input.otherName,
+      lastName: input.lastName,
+    });
     try {
-      if (input.firstName === (await this.cache.get("firstName"))) {
+      if (name === (await this.cache.get("name"))) {
         throw new BadRequestException("Possible duplicate entiry");
       }
       let user: Profile;
@@ -48,36 +64,63 @@ export class ProfileService {
       }
       if (user) throw new BadRequestException("Email is already registered");
 
+      const { familyCode, familyRole, ...rest } = input;
+      user = this.profileRepo.create({
+        ...rest,
+        accountTypes: [input.accountType],
+        id,
+      });
+
+      if (familyCode) {
+        const family = await this.familyService
+          .getFamilyByFamilyCode(familyCode)
+          .catch((err) => {
+            throw err;
+          });
+
+        await this.familyService
+          .createFamilyMember({
+            profile: user.id,
+            family: family.id,
+            role: familyRole,
+          })
+          .catch((err) => {
+            throw new BadRequestException(err);
+          });
+        user.family = family;
+      }
+
+      let createdStudent: Student;
+
+      if (accountType === AccountTypeEnum.Student) {
+        const classRoom = await this.classRepo.findOneByOrFail({
+          id: input.class,
+        });
+
+        const student = this.studentRepo.create({
+          regNo: await this.createRegNo(),
+          id: generateID(),
+        });
+
+        student.class = classRoom;
+        student.profile = user;
+
+        createdStudent = student;
+      }
       if (input.image) {
         image = await cloudinaryUpload(input.image).catch((err) => {
           console.log(err);
           throw new BadGatewayException("Unable to upload image to server");
         });
+        user.image = image;
       }
-
-      const { familyId, familyRole, ...rest } = input;
-
-      user = this.profileRepo.create({
-        ...rest,
-        image,
-        accountTypes: [input.accountType],
-      });
-
-      if (familyId) {
-        const family = await this.familyService.getFamily(familyId);
-        await this.familyService.createFamilyMember({
-          profile: user.id,
-          family: family.id,
-          role: familyRole,
-        });
-        user.family = family;
-      }
-      await this.cache.set("firstName", user.firstName);
 
       await this.profileRepo.save(user);
-
+      await this.studentRepo.save(createdStudent);
+      await this.cache.set("name", name);
       return user;
     } catch (error) {
+      this.logger.error(error);
       throw error;
     }
   }
@@ -88,6 +131,7 @@ export class ProfileService {
 
       return profiles;
     } catch (error) {
+      this.logger.error(error);
       throw error;
     }
   }
@@ -236,5 +280,18 @@ export class ProfileService {
       console.log("Invalid signature");
       return null;
     }
+  }
+  private async createRegNo() {
+    const students = await this.studentRepo.find();
+
+    const lastItem = students[students.length - 1];
+
+    const lastItemNumber = lastItem?.regNo?.split("-")?.[1];
+
+    const count = students.length ? Number(lastItemNumber) + 1 : 1;
+
+    const regNo = `reg-${count.toString().padStart(4, "0")}`;
+
+    return regNo;
   }
 }

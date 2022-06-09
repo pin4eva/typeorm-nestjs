@@ -8,6 +8,7 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { Cache } from "cache-manager";
 import { ProfileService } from "src/profile/services/profile.service";
+import { generateID } from "src/utils/helpers";
 import { Repository } from "typeorm";
 import { CreateClassInput, UpdateClassInput } from "../dtos/class.dto";
 import { ClassRoom } from "../entities/class.entity";
@@ -25,6 +26,7 @@ export class ClassService {
 
   // Create class
   async createClass(input: CreateClassInput): Promise<ClassRoom> {
+    const id = generateID();
     try {
       const teacher = await this.profileService.getProfile(input.teacher);
       const session = await this.sessionService.getSession(input.session);
@@ -36,7 +38,7 @@ export class ClassService {
       if (isDuplicate) {
         throw new BadRequestException("Class already exist with the same name");
       }
-      const Class = this.classRepo.create({ name: input.name });
+      const Class = this.classRepo.create({ name: input.name, id });
       Class.teacher = teacher;
       Class.session = session;
       await this.classRepo.save(Class);

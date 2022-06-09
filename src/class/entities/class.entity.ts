@@ -1,12 +1,13 @@
 import { Field, ObjectType } from "@nestjs/graphql";
+import { Student } from "src/class/entities/student.entity";
 import { Profile } from "src/profile/entities/profile.entity";
-import { Student } from "src/profile/entities/student.entity";
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
 } from "typeorm";
 import { Session } from "./sessions.entity";
 
@@ -14,7 +15,7 @@ import { Session } from "./sessions.entity";
 @Entity()
 export class ClassRoom {
   @Field()
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryColumn("character varying")
   id: string;
 
   @Field()
@@ -32,6 +33,7 @@ export class ClassRoom {
   teacher: Profile;
 
   @Field(() => [Student], { nullable: true })
-  @OneToMany(() => Student, (inverse) => inverse.class)
+  @OneToMany(() => Student, (inverse) => inverse.class, { cascade: true })
+  @JoinColumn()
   students: Student[];
 }

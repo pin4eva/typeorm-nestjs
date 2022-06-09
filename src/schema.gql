@@ -39,23 +39,22 @@ input CreateFamilyMemberInput {
 }
 
 input CreateProfileInput {
-  accountType: String
+  accountType: String!
   address: String
-  dob: DateTime
+  class: String
+  dob: String
   email: String
-  familyId: String
+  familyCode: String
   familyRole: String
   firstName: String!
-  gender: String
+  gender: String!
   image: String
   lastName: String!
-  lga: String
+  lga: String!
   middleName: String!
-  name: String
-  occupation: String
   otherName: String
   phone: String
-  state: String
+  state: String!
 }
 
 input CreateSessionInput {
@@ -125,8 +124,8 @@ type Mutation {
 
 type Profile {
   accountType: String!
-  accountTypes: [String!]!
-  address: String!
+  accountTypes: [String!]
+  address: String
   classes: [ClassRoom!]!
   dob: DateTime!
   email: String
@@ -140,15 +139,15 @@ type Profile {
   isPhoneVerified: Boolean!
   lastName: String!
   lastSeen: DateTime!
-  lga: String!
+  lga: String
   middleName: String!
   name: String!
-  occupation: String!
-  otherName: String!
-  phone: String!
-  role: String!
-  state: String!
-  student: Student!
+  occupation: String
+  otherName: String
+  phone: String
+  role: String
+  state: String
+  student: Student
 }
 
 type Query {
@@ -183,10 +182,10 @@ input SignupInput {
 
 type Student {
   class: ClassRoom!
-  id: String!
+  id: ID!
   profile: Profile!
   regNo: String!
-  status: String!
+  status: String
   subjects: [String!]!
 }
 
@@ -208,9 +207,10 @@ input UpdateFamilyMemberInput {
 input UpdateProfileInput {
   accountType: String
   address: String
-  dob: DateTime
+  class: String
+  dob: String
   email: String
-  familyId: String
+  familyCode: String
   familyRole: String
   firstName: String
   gender: String
@@ -219,8 +219,6 @@ input UpdateProfileInput {
   lastName: String
   lga: String
   middleName: String
-  name: String
-  occupation: String
   otherName: String
   phone: String
   state: String

@@ -1,24 +1,27 @@
-import { Field, ObjectType } from "@nestjs/graphql";
+import { Field, ID, ObjectType } from "@nestjs/graphql";
 import { ClassRoom } from "src/class/entities/class.entity";
 import {
   Column,
   Entity,
   JoinColumn,
-  OneToMany,
+  ManyToOne,
   OneToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
 } from "typeorm";
-import { Profile } from "./profile.entity";
+import { Profile } from "../../profile/entities/profile.entity";
 
 @ObjectType()
 @Entity()
 export class Student {
-  @Field(() => ClassRoom)
-  @OneToMany(() => ClassRoom, (inverse) => inverse.students)
-  class: ClassRoom;
-  @Field(() => String)
-  @PrimaryGeneratedColumn("uuid")
+  @Field(() => ID)
+  @PrimaryColumn("character varying")
   id: string;
+  @Field(() => ClassRoom)
+  @ManyToOne(() => ClassRoom, (inverse) => inverse.students, {
+    orphanedRowAction: "delete",
+  })
+  // @JoinTable()
+  class: ClassRoom;
   @Field(() => [String])
   @Column("simple-array", { nullable: true })
   subjects: string[];
@@ -29,12 +32,7 @@ export class Student {
   @Field()
   @Column()
   regNo: string;
-
-  // @Column({
-  //   type: [{ type: Types.ObjectId, ref: 'Contact', autopopulate: true }],
-  // })
-  // contacts: ContactDocument
-  @Field()
-  @Column()
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   status: string;
 }

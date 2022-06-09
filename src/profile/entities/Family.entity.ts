@@ -1,5 +1,5 @@
 import { Field, ObjectType } from "@nestjs/graphql";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
 import { FamilyMember } from "./FamilyMember.entity";
 import { Profile } from "./profile.entity";
 
@@ -7,14 +7,13 @@ import { Profile } from "./profile.entity";
 @Entity()
 export class Family {
   @Field(() => String)
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryColumn("character varying")
   id: string;
   @Field()
   @Column()
   familyName: string;
   @Field(() => [FamilyMember])
   @OneToMany(() => FamilyMember, (member) => member.family, {
-    eager: true,
     onDelete: "CASCADE",
   })
   members: FamilyMember[];

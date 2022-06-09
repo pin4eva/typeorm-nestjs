@@ -1,5 +1,6 @@
 import { Field, ObjectType } from "@nestjs/graphql";
 import { ClassRoom } from "src/class/entities/class.entity";
+import { generateFullName } from "src/utils/helpers";
 import {
   AfterUpdate,
   BeforeInsert,
@@ -10,17 +11,17 @@ import {
   JoinColumn,
   OneToMany,
   OneToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
 } from "typeorm";
+import { Student } from "../../class/entities/student.entity";
 import { AccountTypeEnum } from "../interfaces/profile.interface";
 import { Family } from "./Family.entity";
-import { Student } from "./student.entity";
 
 @ObjectType()
 @Entity()
 export class Profile {
   @Field()
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryColumn("character varying")
   id: string;
   @Field()
   @Column()
@@ -31,7 +32,7 @@ export class Profile {
   @Field()
   @Column()
   middleName: string;
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   otherName: string;
   @Field()
@@ -40,10 +41,10 @@ export class Profile {
   @Field({ nullable: true })
   @Column({ nullable: true })
   email: string;
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   phone: string;
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   role: string;
   @Field({ nullable: true })
@@ -52,7 +53,7 @@ export class Profile {
   @Field()
   @Column({ nullable: true })
   lastSeen: Date;
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   address: string;
   @Column({ nullable: true })
@@ -75,14 +76,14 @@ export class Profile {
     default: AccountTypeEnum.None,
   })
   accountType: AccountTypeEnum;
-  @Field(() => [String])
+  @Field(() => [String], { nullable: true })
   @Column({
-    type: "enum",
+    type: "simple-array",
     enum: AccountTypeEnum,
     default: AccountTypeEnum.Guest,
   })
   accountTypes: AccountTypeEnum[];
-  @Field(() => Student)
+  @Field(() => Student, { nullable: true })
   @OneToOne(() => Student, (student) => student.profile)
   student: Student;
   @Field(() => [ClassRoom])
@@ -94,13 +95,13 @@ export class Profile {
   @Field()
   @Column({ nullable: true })
   dob: Date;
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   occupation: string;
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   state: string;
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   lga: string;
   @OneToOne(() => Family, {
@@ -112,9 +113,12 @@ export class Profile {
   @BeforeInsert()
   @AfterUpdate()
   setName() {
-    this.name = `${this.firstName} ${this.middleName}${
-      this.otherName ? ` ${this.otherName}` : ""
-    } ${this.lastName}`;
+    this.name = generateFullName({
+      firstName: this.firstName,
+      middleName: this.middleName,
+      otherName: this.otherName,
+      lastName: this.lastName,
+    });
   }
 }
 

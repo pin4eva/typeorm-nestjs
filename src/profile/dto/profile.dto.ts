@@ -1,34 +1,9 @@
-import {
-  Field,
-  InputType,
-  ObjectType,
-  OmitType,
-  PartialType,
-} from "@nestjs/graphql";
-import { Profile } from "../entities/profile.entity";
+import { Field, InputType, ObjectType, PartialType } from "@nestjs/graphql";
+import { AccountTypeEnum } from "../interfaces/profile.interface";
 
 @ObjectType()
 @InputType()
-export class CreateProfileInput extends PartialType(
-  OmitType(
-    Profile,
-    [
-      "accountTypes",
-      "isActive",
-      "emailToken",
-      "isEmailVerified",
-      "isPhoneVerified",
-      "otp",
-      "role",
-      "lastSeen",
-      "id",
-      "student",
-      "family",
-      "classes",
-    ],
-    InputType,
-  ),
-) {
+export class CreateProfileInput {
   @Field()
   firstName: string;
   @Field()
@@ -36,9 +11,31 @@ export class CreateProfileInput extends PartialType(
   @Field()
   middleName: string;
   @Field({ nullable: true })
-  familyId: string;
+  otherName?: string;
+  @Field({ nullable: true })
+  familyCode: string;
   @Field({ nullable: true })
   familyRole: string;
+  @Field({ nullable: true })
+  class?: string;
+  @Field({ nullable: true })
+  email?: string;
+  @Field({ nullable: true })
+  address: string;
+  @Field()
+  state: string;
+  @Field()
+  lga: string;
+  @Field({ nullable: true })
+  dob: string;
+  @Field({ nullable: true })
+  phone: string;
+  @Field()
+  gender: "Male" | "Female";
+  @Field(() => String)
+  accountType: AccountTypeEnum;
+  @Field({ nullable: true })
+  image: string;
 }
 
 @ObjectType()

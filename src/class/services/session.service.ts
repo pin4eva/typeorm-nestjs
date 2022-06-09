@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { generateID } from "src/utils/helpers";
 import { Raw, Repository } from "typeorm";
 import { CreateSessionInput, UpdateSessionInput } from "../dtos/session.dto";
 import { Session } from "../entities/sessions.entity";
@@ -16,6 +17,7 @@ export class SessionService {
 
   // Create Session
   async createSession(input: CreateSessionInput): Promise<Session> {
+    const id = generateID();
     try {
       let session = await this.sessionRepo.findOne({
         where: [
@@ -36,7 +38,7 @@ export class SessionService {
           "Session already exist. Duplicate name or year",
         );
 
-      session = this.sessionRepo.create(input);
+      session = this.sessionRepo.create({ ...input, id });
 
       await this.sessionRepo.save(session);
 

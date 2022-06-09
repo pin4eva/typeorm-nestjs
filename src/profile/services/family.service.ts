@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { generateID } from "src/utils/helpers";
 import { Repository } from "typeorm";
 import {
   CreateFamilyInput,
@@ -27,6 +28,7 @@ export class FamilyService {
 
   // Create Family
   async createFamily(input: CreateFamilyInput): Promise<Family> {
+    const id = generateID();
     try {
       let family = await this.familyRepo.findOne({
         where: { familyName: input.familyName },
@@ -34,7 +36,7 @@ export class FamilyService {
       if (family)
         throw new BadRequestException("Family name is already registered");
       const familyCode = await this.getFamilyCode();
-      family = this.familyRepo.create(input);
+      family = this.familyRepo.create({ ...input, id });
       family.familyCode = familyCode;
       await this.familyRepo.save(family);
 
@@ -134,17 +136,22 @@ export class FamilyService {
   async createFamilyMember(
     input: CreateFamilyMemberInput,
   ): Promise<FamilyMember> {
+    if (!input?.profile)
+      throw new BadRequestException("No Profile ID was provided");
+    const id = generateID();
     try {
       const isMember = await this.memberRepo.findOneBy({
         profile: { id: input.profile },
       });
-      if (isMember)
+      if (isMember) {
+        console.log(isMember);
         throw new BadRequestException("User already belongs to a family");
+      }
 
       const profile = await this.profileRepo.findOneBy({ id: input.profile });
       const family = await this.getFamily(input.family);
 
-      const member = this.memberRepo.create({ role: input.role });
+      const member = this.memberRepo.create({ role: input.role, id });
       member.family = family;
       member.profile = profile;
       profile.family = family;

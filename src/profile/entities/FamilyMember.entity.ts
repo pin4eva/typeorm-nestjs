@@ -1,11 +1,11 @@
-import { ObjectType, Field } from "@nestjs/graphql";
+import { Field, ObjectType } from "@nestjs/graphql";
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  OneToOne,
+  Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
+  PrimaryColumn,
 } from "typeorm";
 import { Family } from "./Family.entity";
 import { Profile } from "./profile.entity";
@@ -14,7 +14,7 @@ import { Profile } from "./profile.entity";
 @Entity()
 export class FamilyMember {
   @Field(() => String)
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryColumn("character varying")
   id: string;
   @Field()
   @Column()
