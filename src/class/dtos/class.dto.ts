@@ -1,5 +1,5 @@
-import { Field, InputType, ObjectType } from "@nestjs/graphql";
-import { IsString } from "class-validator";
+import { Field, ID, InputType, ObjectType } from "@nestjs/graphql";
+import { IsNotEmpty, IsString } from "class-validator";
 
 @ObjectType()
 @InputType()
@@ -13,13 +13,4 @@ export class CreateClassInput {
   @IsString({ message: "Session is required" })
   @Field()
   session: string;
-}
-
-@ObjectType()
-@InputType()
-export class UpdateClassInput {
-  @Field()
-  id: string;
-  @Field()
-  name: string;
 }

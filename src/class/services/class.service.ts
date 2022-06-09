@@ -10,7 +10,8 @@ import { Cache } from "cache-manager";
 import { ProfileService } from "src/profile/services/profile.service";
 import { generateID } from "src/utils/helpers";
 import { Repository } from "typeorm";
-import { CreateClassInput, UpdateClassInput } from "../dtos/class.dto";
+import { CreateClassInput } from "../dtos/class.dto";
+import { UpdateClassInput } from "../dtos/update-class.dto";
 import { ClassRoom } from "../entities/class.entity";
 import { SessionService } from "./session.service";
 
@@ -74,6 +75,20 @@ export class ClassService {
     }
   }
 
+  // get Classes By Session
+  async getClassesBySession(session: string): Promise<ClassRoom[]> {
+    try {
+      const classes = await this.classRepo.find({
+        where: { session: { id: session } },
+        relations: ["session", "students", "teacher"],
+        order: { name: "ASC" },
+      });
+      return classes;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // delete Class
   async deleteClass(id: string): Promise<ClassRoom> {
     try {
@@ -88,7 +103,7 @@ export class ClassService {
   // Get classes
   async getClasses(): Promise<ClassRoom[]> {
     try {
-      return await this.classRepo.find();
+      return await this.classRepo.find({ relations: ["session", "students"] });
     } catch (error) {
       throw error;
     }

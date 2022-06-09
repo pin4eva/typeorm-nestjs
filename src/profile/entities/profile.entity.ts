@@ -12,6 +12,7 @@ import {
   OneToMany,
   OneToOne,
   PrimaryColumn,
+  Unique,
 } from "typeorm";
 import { Student } from "../../class/entities/student.entity";
 import { AccountTypeEnum } from "../interfaces/profile.interface";
@@ -19,6 +20,7 @@ import { Family } from "./Family.entity";
 
 @ObjectType()
 @Entity()
+@Unique(["email"])
 export class Profile {
   @Field()
   @PrimaryColumn("character varying")
@@ -51,7 +53,7 @@ export class Profile {
   @Column({ nullable: true })
   image: string;
   @Field()
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: new Date() })
   lastSeen: Date;
   @Field({ nullable: true })
   @Column({ nullable: true })
@@ -84,7 +86,9 @@ export class Profile {
   })
   accountTypes: AccountTypeEnum[];
   @Field(() => Student, { nullable: true })
-  @OneToOne(() => Student, (student) => student.profile)
+  @OneToOne(() => Student, (student) => student.profile, {
+    onDelete: "SET NULL",
+  })
   student: Student;
   @Field(() => [ClassRoom])
   @OneToMany(() => ClassRoom, (inverse) => inverse.teacher)
@@ -92,7 +96,7 @@ export class Profile {
   @Field()
   @Column()
   gender: string;
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   dob: Date;
   @Field({ nullable: true })

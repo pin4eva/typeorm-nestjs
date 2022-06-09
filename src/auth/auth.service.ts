@@ -21,6 +21,7 @@ import {
 import { Auth } from "./entities/auth.entity";
 import { sendgrid } from "src/utils/sendgrid";
 import { nanoid } from "nanoid";
+import { generateID } from "src/utils/helpers";
 
 const { CLIENT_URL } = process.env;
 
@@ -61,7 +62,7 @@ export class AuthService {
         password: newPassword,
         email: user.email,
       });
-
+      auth.id = generateID();
       auth.profile = user;
 
       await this.profileRepo.update(
@@ -80,6 +81,8 @@ export class AuthService {
     try {
       const auth = await this.authRepo.findOneBy({ email });
       if (!email) throw new BadRequestException("Email not registered");
+      if (!auth?.profile?.id)
+        throw new UnauthorizedException("Register your account to login");
 
       const storePassword = auth.password?.split("-")?.[1];
 

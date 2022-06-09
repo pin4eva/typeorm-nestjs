@@ -34,7 +34,7 @@ export class ProfileResolver {
 
     return profile;
   }
-  @UseGuards(GQLAuthGaurd)
+  // @UseGuards(GQLAuthGaurd)
   @Mutation(() => Profile)
   async updateProfile(@Args("input") input: UpdateProfileInput) {
     return this.profileService.updateProfile(input);

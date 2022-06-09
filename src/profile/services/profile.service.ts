@@ -139,7 +139,10 @@ export class ProfileService {
   async getProfile(id: string): Promise<Profile> {
     if (!id) throw new BadRequestException("Empty ID");
     try {
-      const profile = await this.profileRepo.findOne({ where: { id } });
+      const profile = await this.profileRepo.findOne({
+        where: { id },
+        relations: ["family"],
+      });
 
       if (!profile) throw new NotFoundException("Profile not found");
       return profile;
@@ -150,7 +153,10 @@ export class ProfileService {
 
   async getMe(id: string): Promise<Profile> {
     try {
-      const user = await this.profileRepo.findOne({ where: { id } });
+      const user = await this.profileRepo.findOne({
+        where: { id },
+        relations: ["family"],
+      });
       await this.profileRepo.update({ id }, { lastSeen: new Date() });
       return user;
     } catch (error) {
@@ -210,6 +216,7 @@ export class ProfileService {
         order: {
           firstName: "ASC",
         },
+        relations: ["family"],
       });
       // const profiles = await this.profileRepo
       //   .createQueryBuilder("profile")

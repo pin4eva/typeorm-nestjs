@@ -24,7 +24,10 @@ export class FamilyMember {
   @JoinColumn()
   profile: Profile;
   @Field(() => Family)
-  @ManyToOne(() => Family, (family) => family.members, { onDelete: "CASCADE" })
+  @ManyToOne(() => Family, (family) => family.members, {
+    eager: true,
+    onDelete: "CASCADE",
+  })
   @JoinColumn()
   family: Family;
 }

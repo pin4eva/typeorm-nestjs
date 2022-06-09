@@ -1,12 +1,7 @@
-import {
-  BadGatewayException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Student } from "../../class/entities/student.entity";
-import { CreateStudentInput } from "../dto/student.dto";
 // import { ProfileService } from "./profile.service";
 
 @Injectable()
@@ -17,45 +12,72 @@ export class StudentService {
     private readonly studentRepo: Repository<Student>,
   ) {}
 
-  // Create Student and assign to class
-  // async createStudent(input: CreateStudentInput): Promise<Student> {
-  //   try {
-  //     // const profile = await this.profileService.getProfile(input.profile);
-  //     // const classRoom = await this.classRepo.findOneBy({ id: input.class });
-  //     if (!input.class) throw new NotFoundException("Invalid class room id");
-  //     const regNo = await this.createRegNo();
-  //     const student = this.studentRepo.create({ regNo });
+  /**
+@see: profile.service.ts for createStudent
+ */
 
-  //     student.profileId = input.profile;
-  //     student.classId = input.class;
-
-  //     await this.studentRepo.save(student);
-
-  //     return student;
-  //   } catch (error) {
-  //     throw new BadGatewayException(error);
-  //   }
-  // }
   // Assign a student to another class
 
   // Get students
+  async getStudents(): Promise<Student[]> {
+    return await this.studentRepo.find({ relations: ["profile", "class"] });
+  }
+
+  // Get students by session
+  async getStudentsBySession(session: string): Promise<Student[]> {
+    try {
+      const students = await this.studentRepo.find({
+        where: { class: { session: { id: session } } },
+        relations: ["profile", "class"],
+      });
+      return students;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Get students by class
+  async getStudentsByClass(classId: string): Promise<Student[]> {
+    try {
+      const students = await this.studentRepo.find({
+        where: { class: { id: classId } },
+        relations: ["profile", "class"],
+      });
+
+      return students;
+    } catch (error) {
+      throw error;
+    }
+  }
 
   // Get Student
+  async getStudent(id: string): Promise<Student> {
+    try {
+      const student = await this.studentRepo.findOne({
+        where: { id },
+        relations: ["class", "profile"],
+      });
+      if (!student) throw new NotFoundException("Student not found");
+
+      return student;
+    } catch (error) {
+      throw error;
+    }
+  }
 
   // Get Student By RegNo
 
-  // create RegNo.
-  private async createRegNo() {
-    const students = await this.studentRepo.find();
+  async getStudentByRegNo(regNo: string): Promise<Student> {
+    try {
+      const student = await this.studentRepo.findOne({
+        where: { regNo },
+        relations: ["class", "profile"],
+      });
+      if (!student) throw new NotFoundException("Student not found");
 
-    const lastItem = students[students.length - 1];
-
-    const lastItemNumber = lastItem?.regNo?.split("-")?.[1];
-
-    const count = students.length ? Number(lastItemNumber) + 1 : 1;
-
-    const regNo = `reg-${count.toString().padStart(4, "0")}`;
-
-    return regNo;
+      return student;
+    } catch (error) {
+      throw error;
+    }
   }
 }

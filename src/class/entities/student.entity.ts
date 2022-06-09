@@ -1,6 +1,7 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql";
 import { ClassRoom } from "src/class/entities/class.entity";
 import {
+  AfterLoad,
   Column,
   Entity,
   JoinColumn,
@@ -26,7 +27,11 @@ export class Student {
   @Column("simple-array", { nullable: true })
   subjects: string[];
   @Field(() => Profile)
-  @OneToOne(() => Profile, (profile) => profile.student)
+  @OneToOne(() => Profile, (profile) => profile.student, {
+    eager: true,
+    onDelete: "CASCADE",
+    orphanedRowAction: "delete",
+  })
   @JoinColumn()
   profile: Profile;
   @Field()
@@ -35,4 +40,9 @@ export class Student {
   @Field({ nullable: true })
   @Column({ nullable: true })
   status: string;
+
+  @AfterLoad()
+  getRegNoInUpper() {
+    this.regNo = this.regNo.toUpperCase();
+  }
 }

@@ -127,7 +127,7 @@ type Profile {
   accountTypes: [String!]
   address: String
   classes: [ClassRoom!]!
-  dob: DateTime!
+  dob: DateTime
   email: String
   family: Family
   firstName: String!
@@ -154,6 +154,7 @@ type Query {
   getAuths: [Auth!]
   getClass(id: String!): ClassRoom!
   getClasses: [ClassRoom!]!
+  getClassesBySession(session: String!): [ClassRoom!]!
   getFamilies: [Family!]!
   getFamily(id: String!): Family!
   getFamilyByFamilyCode(familyCode: String!): Family!
@@ -162,6 +163,11 @@ type Query {
   getProfiles: [Profile!]!
   getSession(id: String!): Session!
   getSessions: [Session!]!
+  getStudent(id: String!): Student!
+  getStudentByRegNo(regNo: String!): Student!
+  getStudents: [Student!]!
+  getStudentsByClass(classId: String!): [Student!]!
+  getStudentsBySession(session: String!): [Student!]!
   me: Profile!
   searchProfilesByName(name: String!): [Profile!]!
   sendInvit(id: String!): Boolean!
@@ -190,7 +196,7 @@ type Student {
 }
 
 input UpdateClassInput {
-  id: String!
+  id: ID!
   name: String!
 }
 

@@ -10,6 +10,7 @@ import { FamilyMember } from "./entities/FamilyMember.entity";
 import { Profile } from "./entities/profile.entity";
 import { FamilyResolver } from "./resolvers/family.resolver";
 import { ProfileResolver } from "./resolvers/profile.resolver";
+import { StudentResolver } from "./resolvers/student.resolver";
 import { FamilyService } from "./services/family.service";
 import { ProfileService } from "./services/profile.service";
 
@@ -30,6 +31,7 @@ import { ProfileService } from "./services/profile.service";
     FamilyService,
     FamilyResolver,
     StudentService,
+    StudentResolver,
   ],
   exports: [ProfileService],
 })

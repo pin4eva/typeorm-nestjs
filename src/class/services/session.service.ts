@@ -72,6 +72,13 @@ export class SessionService {
     try {
       const session = await this.sessionRepo.findOneBy({ id });
       if (!session) throw new NotFoundException("Incorrect Session ID");
+      const isCurrent = await this.sessionRepo.findOne({
+        where: { isCurrent: true },
+      });
+      isCurrent.isCurrent = false;
+
+      this.sessionRepo.save(isCurrent);
+      // await this.sessionRepo.update({ id: isCurrent.id }, { isCurrent: false });
       await this.sessionRepo.update(id, { isCurrent: true });
       return true;
     } catch (error) {
