@@ -80,4 +80,14 @@ export class StudentService {
       throw error;
     }
   }
+
+  async deleteStudent(id: string): Promise<Student> {
+    try {
+      const student = await this.getStudent(id);
+      await this.studentRepo.delete(id);
+      return student;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

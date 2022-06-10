@@ -32,6 +32,9 @@ import { config } from "./utils";
       sortSchema: true,
       path: `${config.API_PATH}/graphql`,
       cors: false,
+      buildSchemaOptions: {
+        dateScalarMode: "timestamp",
+      },
     }),
     CacheModule.register({ isGlobal: true }),
 

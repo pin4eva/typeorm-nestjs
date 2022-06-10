@@ -13,9 +13,7 @@ export class Family {
   @Column()
   familyName: string;
   @Field(() => [FamilyMember])
-  @OneToMany(() => FamilyMember, (member) => member.family, {
-    onDelete: "CASCADE",
-  })
+  @OneToMany(() => FamilyMember, (member) => member.family)
   members: FamilyMember[];
   @Field(() => [Profile])
   @Field()

@@ -76,7 +76,10 @@ export class FamilyService {
   // Get Family By FamilyCode
   async getFamilyByFamilyCode(familyCode: string): Promise<Family> {
     try {
-      const family = await this.familyRepo.findOneBy({ familyCode });
+      const family = await this.familyRepo.findOne({
+        where: { familyCode },
+        relations: ["members"],
+      });
       return family;
     } catch (error) {
       throw error;
@@ -190,6 +193,12 @@ export class FamilyService {
     }
   }
 
+  // clear Family
+  async clearFamily() {
+    await this.memberRepo.clear();
+    await this.familyRepo.clear();
+    return true;
+  }
   private async getFamilyCode() {
     const families = await this.familyRepo.find();
 

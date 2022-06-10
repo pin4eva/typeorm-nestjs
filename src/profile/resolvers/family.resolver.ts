@@ -59,4 +59,9 @@ export class FamilyResolver {
   deleteFamilyMember(@Args("id") id: string) {
     return this.familyService.deleteFamilyMember(id);
   }
+
+  @Mutation(() => Boolean)
+  clearFamily() {
+    return this.familyService.clearFamily();
+  }
 }

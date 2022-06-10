@@ -20,13 +20,13 @@ export class FamilyMember {
   @Column()
   role: string;
   @Field(() => Profile)
-  @OneToOne(() => Profile, { eager: true })
+  @OneToOne(() => Profile)
   @JoinColumn()
   profile: Profile;
   @Field(() => Family)
   @ManyToOne(() => Family, (family) => family.members, {
-    eager: true,
     onDelete: "CASCADE",
+    orphanedRowAction: "nullify",
   })
   @JoinColumn()
   family: Family;

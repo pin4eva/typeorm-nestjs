@@ -53,7 +53,7 @@ export class Profile {
   @Column({ nullable: true })
   image: string;
   @Field()
-  @Column({ nullable: true, default: new Date() })
+  @Column({ nullable: true })
   lastSeen: Date;
   @Field({ nullable: true })
   @Column({ nullable: true })
@@ -87,7 +87,8 @@ export class Profile {
   accountTypes: AccountTypeEnum[];
   @Field(() => Student, { nullable: true })
   @OneToOne(() => Student, (student) => student.profile, {
-    onDelete: "SET NULL",
+    onDelete: "CASCADE",
+    orphanedRowAction: "delete",
   })
   student: Student;
   @Field(() => [ClassRoom])
@@ -108,10 +109,10 @@ export class Profile {
   @Field({ nullable: true })
   @Column({ nullable: true })
   lga: string;
-  @OneToOne(() => Family, {
-    onDelete: "SET NULL",
-  })
   @Field(() => Family, { nullable: true })
+  @OneToOne(() => Family, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn()
   family: Family;
   @BeforeInsert()

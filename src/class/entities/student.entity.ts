@@ -26,11 +26,9 @@ export class Student {
   @Field(() => [String])
   @Column("simple-array", { nullable: true })
   subjects: string[];
-  @Field(() => Profile)
+  @Field(() => Profile, { nullable: true })
   @OneToOne(() => Profile, (profile) => profile.student, {
-    eager: true,
     onDelete: "CASCADE",
-    orphanedRowAction: "delete",
   })
   @JoinColumn()
   profile: Profile;

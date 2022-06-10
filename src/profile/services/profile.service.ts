@@ -22,7 +22,10 @@ import {
   UpdateProfileInput,
   UploadImageInput,
 } from "../dto/profile.dto";
+import { Family } from "../entities/Family.entity";
+import { FamilyMember } from "../entities/FamilyMember.entity";
 import { Profile } from "../entities/profile.entity";
+import { FamilyRoleEnum } from "../interfaces/famiy.interface";
 import { AccountTypeEnum } from "../interfaces/profile.interface";
 import { FamilyService } from "./family.service";
 
@@ -37,61 +40,60 @@ export class ProfileService {
     private readonly studentRepo: Repository<Student>,
     @InjectRepository(ClassRoom)
     private readonly classRepo: Repository<ClassRoom>,
+    @InjectRepository(FamilyMember)
+    private readonly memberRepo: Repository<FamilyMember>,
   ) {}
   private readonly logger = new Logger(ProfileService.name);
 
   async createProfile(input: CreateProfileInput): Promise<Profile> {
     const { email, accountType } = input;
-    const id = generateID();
+
+    // create a temporal copy of name for caching and limiting duplicate inserts
     const name = generateFullName({
       firstName: input?.firstName,
       middleName: input.middleName,
       otherName: input.otherName,
       lastName: input.lastName,
     });
+
     try {
+      // If name from input is same as cached name, throw error
       if (name === (await this.cache.get("name"))) {
         throw new BadRequestException("Possible duplicate entiry");
       }
+
+      // initialize user and image to be filled later
       let user: Profile;
       let image: string;
 
+      // initialize member in case
+      let isMember: FamilyMember;
+      let family: Family;
+
+      // Require email for non student accounts
       if (accountType !== AccountTypeEnum.Student) {
         if (!email) throw new BadRequestException("Email is required");
         user = await this.profileRepo.findOneBy({ email });
       } else {
         if (!input?.image) throw new BadRequestException("Image is required");
       }
+
+      // Avoid duplicate emails
       if (user) throw new BadRequestException("Email is already registered");
 
+      // remove familyCode and familyRole from payload
       const { familyCode, familyRole, ...rest } = input;
+
+      // Create an instance of the Profile
       user = this.profileRepo.create({
         ...rest,
         accountTypes: [input.accountType],
-        id,
+        id: generateID(),
       });
-
-      if (familyCode) {
-        const family = await this.familyService
-          .getFamilyByFamilyCode(familyCode)
-          .catch((err) => {
-            throw err;
-          });
-
-        await this.familyService
-          .createFamilyMember({
-            profile: user.id,
-            family: family.id,
-            role: familyRole,
-          })
-          .catch((err) => {
-            throw new BadRequestException(err);
-          });
-        user.family = family;
-      }
 
       let createdStudent: Student;
 
+      // If the account is a Student account, create a student profile also
       if (accountType === AccountTypeEnum.Student) {
         const classRoom = await this.classRepo.findOneByOrFail({
           id: input.class,
@@ -107,6 +109,8 @@ export class ProfileService {
 
         createdStudent = student;
       }
+
+      // Image is optional
       if (input.image) {
         image = await cloudinaryUpload(input.image).catch((err) => {
           console.log(err);
@@ -115,16 +119,55 @@ export class ProfileService {
         user.image = image;
       }
 
+      // If a familyCode was added to payload, create a member
+      if (familyCode) {
+        family = await this.familyService
+          .getFamilyByFamilyCode(familyCode)
+          .catch((err) => {
+            throw err;
+          });
+
+        const member = this.memberRepo.create({
+          id: generateID(),
+          role:
+            accountType === AccountTypeEnum.Student
+              ? FamilyRoleEnum.Student
+              : familyRole,
+        });
+
+        member.family = family;
+        member.profile = user;
+        user.family = family;
+        isMember = member;
+      }
+
+      user.lastSeen = new Date(Date.now());
+
       await this.profileRepo.save(user);
-      await this.studentRepo.save(createdStudent);
       await this.cache.set("name", name);
-      return user;
+      await this.studentRepo.save(createdStudent);
+      if (Boolean(isMember)) {
+        await this.memberRepo.save(isMember);
+      }
+
+      // user = await this.profileRepo.findOne({
+      //   where: { id: user.id },
+      //   relations: ["student", "teacher", "family"],
+      // });
+      const mappedResult: Profile = {
+        ...user,
+        dob: new Date(user?.dob),
+        student: createdStudent,
+        family,
+      } as Profile;
+      return mappedResult;
     } catch (error) {
       this.logger.error(error);
       throw error;
     }
   }
 
+  // get All Profiles
   async getProfiles(): Promise<Profile[]> {
     try {
       const profiles = await this.profileRepo.find({ relations: ["family"] });
@@ -254,9 +297,10 @@ export class ProfileService {
   async deleteAllProfile(): Promise<Profile[]> {
     try {
       const profiles = await this.profileRepo.find();
-      for (const profile of profiles) {
-        await this.profileRepo.delete(profile.id);
-      }
+      await this.profileRepo.clear();
+      // for (const profile of profiles) {
+      //   await this.profileRepo.delete(profile.id);
+      // }
       return profiles;
     } catch (error) {
       throw error;
@@ -288,6 +332,7 @@ export class ProfileService {
       return null;
     }
   }
+
   private async createRegNo() {
     const students = await this.studentRepo.find();
 

@@ -62,11 +62,6 @@ input CreateSessionInput {
   year: Int!
 }
 
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
 type Family {
   familyCode: String!
   familyName: String!
@@ -98,6 +93,7 @@ type LoginResponse {
 
 type Mutation {
   changeAuthPassword(input: ChangeAuthPasswordInput!): Boolean!
+  clearFamily: Boolean!
   createClass(input: CreateClassInput!): ClassRoom!
   createFamily(input: CreateFamilyInput!): Family!
   createFamilyMember(input: CreateFamilyMemberInput!): FamilyMember!
@@ -110,6 +106,7 @@ type Mutation {
   deleteFamilyMember(id: String!): FamilyMember!
   deleteProfile(id: String!): Profile!
   deleteSession(id: String!): Session!
+  deleteStudent(id: String!): Student!
   forgotPassword(input: ForgotPasswordInput!): Boolean!
   login(input: LoginInput!): LoginResponse!
   resetPassword(email: String!): Boolean!
@@ -127,7 +124,7 @@ type Profile {
   accountTypes: [String!]
   address: String
   classes: [ClassRoom!]!
-  dob: DateTime
+  dob: Timestamp
   email: String
   family: Family
   firstName: String!
@@ -138,7 +135,7 @@ type Profile {
   isEmailVerified: Boolean!
   isPhoneVerified: Boolean!
   lastName: String!
-  lastSeen: DateTime!
+  lastSeen: Timestamp!
   lga: String
   middleName: String!
   name: String!
@@ -189,11 +186,16 @@ input SignupInput {
 type Student {
   class: ClassRoom!
   id: ID!
-  profile: Profile!
+  profile: Profile
   regNo: String!
   status: String
   subjects: [String!]!
 }
+
+"""
+`Date` type as integer. Type represents date and time as number of milliseconds from start of UNIX epoch.
+"""
+scalar Timestamp
 
 input UpdateClassInput {
   id: ID!

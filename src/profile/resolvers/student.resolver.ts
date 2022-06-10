@@ -1,4 +1,4 @@
-import { Args, Query, Resolver } from "@nestjs/graphql";
+import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { Student } from "src/class/entities/student.entity";
 import { ProfileService } from "src/profile/services/profile.service";
 import { StudentService } from "../services/student.service";
@@ -35,5 +35,11 @@ export class StudentResolver {
   @Query(() => Student)
   getStudentByRegNo(@Args("regNo") regNo: string) {
     return this.studentService.getStudentByRegNo(regNo);
+  }
+
+  // Delete Student
+  @Mutation(() => Student)
+  deleteStudent(@Args("id") id: string) {
+    return this.studentService.deleteStudent(id);
   }
 }

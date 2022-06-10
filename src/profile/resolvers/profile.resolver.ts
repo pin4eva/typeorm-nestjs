@@ -39,7 +39,7 @@ export class ProfileResolver {
   async updateProfile(@Args("input") input: UpdateProfileInput) {
     return this.profileService.updateProfile(input);
   }
-  @UseGuards(GQLAuthGaurd)
+  // @UseGuards(GQLAuthGaurd)
   @Mutation(() => Profile)
   async deleteProfile(@Args("id") id: string) {
     return this.profileService.deleteProfile(id);
