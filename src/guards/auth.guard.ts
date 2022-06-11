@@ -1,5 +1,5 @@
-import { CanActivate, ExecutionContext } from '@nestjs/common';
-import { GqlExecutionContext } from '@nestjs/graphql';
+import { CanActivate, ExecutionContext } from "@nestjs/common";
+import { GqlExecutionContext } from "@nestjs/graphql";
 
 export class GQLAuthGaurd implements CanActivate {
   canActivate(context: ExecutionContext) {

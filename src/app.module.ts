@@ -24,7 +24,7 @@ import { config } from "./utils";
       database: "bdmis",
       password: "peter",
       subscribers: [ProfileSubscriber],
-      logging: true,
+      logging: ["error"],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,

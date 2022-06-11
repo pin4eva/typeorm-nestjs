@@ -64,7 +64,7 @@ export class FamilyService {
     try {
       const family = await this.familyRepo.findOne({
         where: { id },
-        relations: ["members"],
+        relations: ["members", "members.profile.student"],
       });
       if (!family) throw new NotFoundException("Family id not correct");
       return family;
@@ -154,15 +154,19 @@ export class FamilyService {
         throw new BadRequestException("User already belongs to a family");
       }
 
-      const profile = await this.profileRepo.findOneBy({ id: input.profile });
+      const profile = await this.profileRepo.findOneByOrFail({
+        id: input.profile,
+      });
       const family = await this.getFamily(input.family);
 
-      const member = this.memberRepo.create({ role: input.role, id });
+      const member = this.memberRepo.create({ role: input.role });
       member.family = family;
       member.profile = profile;
+      member.id = id;
       profile.family = family;
-      await this.memberRepo.save(member);
+
       await this.profileRepo.save(profile);
+      await this.memberRepo.save(member);
       return member;
     } catch (error) {
       throw error;

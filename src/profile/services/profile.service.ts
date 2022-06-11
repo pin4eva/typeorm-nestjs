@@ -47,7 +47,7 @@ export class ProfileService {
 
   async createProfile(input: CreateProfileInput): Promise<Profile> {
     const { email, accountType } = input;
-
+    console.log(input);
     // create a temporal copy of name for caching and limiting duplicate inserts
     const name = generateFullName({
       firstName: input?.firstName,
