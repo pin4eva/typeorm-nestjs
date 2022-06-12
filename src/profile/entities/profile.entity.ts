@@ -15,10 +15,11 @@ import {
   PrimaryColumn,
   Unique,
 } from "typeorm";
-import { Student } from "../../class/entities/student.entity";
+
 import { AccountTypeEnum } from "../interfaces/profile.interface";
 import { Family } from "./Family.entity";
 import { FamilyMember } from "./FamilyMember.entity";
+import { Student } from './students/student.entity';
 
 @ObjectType()
 @Entity()
@@ -165,8 +166,7 @@ export class ProfileSubscriber implements EntitySubscriberInterface<Profile> {
   }
 
   async afterLoad(profile: Profile) {
-    profile.name = `${profile.firstName} ${profile.middleName}${
-      profile.otherName ? ` ${profile.otherName}` : ""
-    } ${profile.lastName}`;
+    profile.name = `${profile.firstName} ${profile.middleName}${profile.otherName ? ` ${profile.otherName}` : ""
+      } ${profile.lastName}`;
   }
 }

@@ -1,6 +1,10 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
-import { Student } from "src/class/entities/student.entity";
+
 import { ProfileService } from "src/profile/services/profile.service";
+import { CreateStudentContactInput, CreateStudentMedicalRecordInput, UpdateStudentContactInput, UpdateStudentMedicalRecordInput } from '../dto/student.dto';
+import { StudentContact } from '../entities/students/student-contact.entity';
+import { StudentMedical } from '../entities/students/student-medical.entity';
+import { Student } from '../entities/students/student.entity';
 import { StudentService } from "../services/student.service";
 
 @Resolver()
@@ -8,7 +12,7 @@ export class StudentResolver {
   constructor(
     private studentService: StudentService,
     private profileService: ProfileService,
-  ) {}
+  ) { }
 
   // get all students
   @Query(() => [Student])
@@ -41,5 +45,58 @@ export class StudentResolver {
   @Mutation(() => Student)
   deleteStudent(@Args("id") id: string) {
     return this.studentService.deleteStudent(id);
+  }
+
+  /** STUDENT MEDICALS */
+
+  // createStudentMedical
+  @Mutation(() => StudentMedical)
+  async createStudentMedical(@Args("input") input: CreateStudentMedicalRecordInput) {
+    return this.studentService.createMedicalRecord(input)
+  }
+
+  // updateStudentMedical
+  @Mutation(() => StudentMedical)
+  async updateStudentMedical(@Args("input") input: UpdateStudentMedicalRecordInput) {
+    return this.studentService.updateMedicalRecord(input)
+  }
+
+  // deleteStudentMedical
+  @Mutation(() => StudentMedical)
+  async deleteStudentMedical(@Args("id") id: string) {
+    return this.studentService.deleteMedicalRecord(id)
+  }
+
+  // getStudentMedicalByStudentId
+  @Query(() => StudentMedical)
+  getStudentMedicalByStudentId(@Args("studentId") studentId: string) {
+    return this.studentService.getMedicalRecordByStudentId(studentId)
+  }
+
+
+  /** STUDENT CONTACTS */
+
+  // createStudentContact
+  @Mutation(() => StudentContact)
+  createStudentContact(@Args("input") input: CreateStudentContactInput) {
+    return this.studentService.createContact(input)
+  }
+
+  // updateStudentContact
+  @Mutation(() => StudentContact)
+  updateStudentContact(@Args("input") input: UpdateStudentContactInput) {
+    return this.studentService.updateContact(input)
+  }
+
+  // deleteStudentContact
+  @Mutation(() => StudentContact)
+  deleteStudentContact(@Args("id") id: string) {
+    return this.studentService.deleteContact(id)
+  }
+
+  // getStudentContactByStudentId
+  @Query(() => [StudentContact])
+  getStudentContactByStudentId(@Args("studentId") studentId: string) {
+    return this.studentService.getContactsByStudentId(studentId)
   }
 }

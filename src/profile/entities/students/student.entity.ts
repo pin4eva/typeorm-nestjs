@@ -6,10 +6,14 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryColumn,
 } from "typeorm";
-import { Profile } from "../../profile/entities/profile.entity";
+import { Profile } from "../profile.entity";
+import { StudentContact } from './student-contact.entity';
+import { StudentMedical } from './student-medical.entity';
+
 
 @ObjectType()
 @Entity()
@@ -38,6 +42,16 @@ export class Student {
   @Field({ nullable: true })
   @Column({ nullable: true })
   status: string;
+
+  @Field(() => [StudentContact])
+  @OneToMany(() => StudentContact, inverse => inverse.student)
+  contacts: StudentContact[]
+
+  @Field(() => StudentMedical, { nullable: true })
+  @OneToOne(() => StudentMedical, inverse => inverse.student, { onDelete: "SET NULL" })
+  @JoinColumn()
+  medicalRecord: StudentMedical
+
 
   @AfterLoad()
   getRegNoInUpper() {

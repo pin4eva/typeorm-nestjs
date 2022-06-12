@@ -34,4 +34,9 @@ export class FamilyMember {
   @ManyToOne(() => Family, (family) => family.members)
   @JoinColumn()
   family: Family;
+
+  @Field()
+  @Column({ default: false })
+  isPrimary: boolean
 }
+

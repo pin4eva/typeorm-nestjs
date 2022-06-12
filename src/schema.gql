@@ -62,16 +62,41 @@ input CreateSessionInput {
   year: Int!
 }
 
+input CreateStudentContactInput {
+  contactType: String!
+  image: String
+  name: String!
+  phone: String!
+  studentId: String!
+}
+
+input CreateStudentMedicalRecordInput {
+  allergies: [String!]
+  drugReactions: [String!]
+  routineDrugs: [String!]
+  studentId: ID!
+}
+
 type Family {
+  address: String
   familyCode: String!
   familyName: String!
   id: String!
+  medicals: FamilyMedical!
   members: [FamilyMember!]!
+}
+
+type FamilyMedical {
+  hospitalAddress: String
+  hospitalName: String
+  hospitalPhone: String
+  id: String!
 }
 
 type FamilyMember {
   family: Family!
   id: String!
+  isPrimary: Boolean!
   profile: Profile!
   role: String!
 }
@@ -99,6 +124,8 @@ type Mutation {
   createFamilyMember(input: CreateFamilyMemberInput!): FamilyMember!
   createProfile(input: CreateProfileInput!): Profile!
   createSession(input: CreateSessionInput!): Session!
+  createStudentContact(input: CreateStudentContactInput!): StudentContact!
+  createStudentMedical(input: CreateStudentMedicalRecordInput!): StudentMedical!
   deleteAllProfile: [Profile!]!
   deleteAuth(id: String!): Auth!
   deleteClass(id: String!): ClassRoom!
@@ -107,6 +134,8 @@ type Mutation {
   deleteProfile(id: String!): Profile!
   deleteSession(id: String!): Session!
   deleteStudent(id: String!): Student!
+  deleteStudentContact(id: String!): StudentContact!
+  deleteStudentMedical(id: String!): StudentMedical!
   forgotPassword(input: ForgotPasswordInput!): Boolean!
   login(input: LoginInput!): LoginResponse!
   resetPassword(email: String!): Boolean!
@@ -117,6 +146,8 @@ type Mutation {
   updateFamilyMember(input: UpdateFamilyMemberInput!): FamilyMember!
   updateProfile(input: UpdateProfileInput!): Profile!
   updateSession(input: UpdateSessionInput!): Session!
+  updateStudentContact(input: UpdateStudentContactInput!): StudentContact!
+  updateStudentMedical(input: UpdateStudentMedicalRecordInput!): StudentMedical!
 }
 
 type Profile {
@@ -162,6 +193,8 @@ type Query {
   getSessions: [Session!]!
   getStudent(id: String!): Student!
   getStudentByRegNo(regNo: String!): Student!
+  getStudentContactByStudentId(studentId: String!): [StudentContact!]!
+  getStudentMedicalByStudentId(studentId: String!): StudentMedical!
   getStudents: [Student!]!
   getStudentsByClass(classId: String!): [Student!]!
   getStudentsBySession(session: String!): [Student!]!
@@ -185,11 +218,30 @@ input SignupInput {
 
 type Student {
   class: ClassRoom!
+  contacts: [StudentContact!]!
   id: ID!
+  medicalRecord: StudentMedical
   profile: Profile
   regNo: String!
   status: String
   subjects: [String!]!
+}
+
+type StudentContact {
+  contactType: String!
+  id: ID!
+  image: String
+  name: String!
+  phone: String!
+  student: Student!
+}
+
+type StudentMedical {
+  allergies: [String!]
+  drugReactions: [String!]
+  id: ID!
+  routineDrugs: [String!]
+  student: Student!
 }
 
 """
@@ -236,4 +288,19 @@ input UpdateSessionInput {
   id: ID!
   name: String!
   year: Int!
+}
+
+input UpdateStudentContactInput {
+  contactType: String
+  id: ID!
+  image: String
+  name: String
+  phone: String
+}
+
+input UpdateStudentMedicalRecordInput {
+  allergies: [String!]
+  drugReactions: [String!]
+  id: ID!
+  routineDrugs: [String!]
 }

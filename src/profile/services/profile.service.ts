@@ -12,7 +12,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Cache } from "cache-manager";
 import { verify } from "jsonwebtoken";
 import { ClassRoom } from "src/class/entities/class.entity";
-import { Student } from "src/class/entities/student.entity";
+
 import { config } from "src/utils";
 import { cloudinaryUpload } from "src/utils/cloudinary";
 import { generateFullName, generateID } from "src/utils/helpers";
@@ -25,6 +25,7 @@ import {
 import { Family } from "../entities/Family.entity";
 import { FamilyMember } from "../entities/FamilyMember.entity";
 import { Profile } from "../entities/profile.entity";
+import { Student } from '../entities/students/student.entity';
 import { FamilyRoleEnum } from "../interfaces/famiy.interface";
 import { AccountTypeEnum } from "../interfaces/profile.interface";
 import { FamilyService } from "./family.service";
@@ -42,12 +43,12 @@ export class ProfileService {
     private readonly classRepo: Repository<ClassRoom>,
     @InjectRepository(FamilyMember)
     private readonly memberRepo: Repository<FamilyMember>,
-  ) {}
+  ) { }
   private readonly logger = new Logger(ProfileService.name);
 
   async createProfile(input: CreateProfileInput): Promise<Profile> {
     const { email, accountType } = input;
-  
+
     // create a temporal copy of name for caching and limiting duplicate inserts
     const name = generateFullName({
       firstName: input?.firstName,
@@ -146,7 +147,7 @@ export class ProfileService {
       await this.profileRepo.save(user);
       await this.cache.set("name", name);
       if (createdStudent) {
-      await this.studentRepo.save(createdStudent);
+        await this.studentRepo.save(createdStudent);
       }
       if (Boolean(isMember)) {
         await this.memberRepo.save(isMember);

@@ -1,5 +1,6 @@
 import { Field, ObjectType } from "@nestjs/graphql";
-import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
+import { FamilyMedical } from './FamilyMedical.entity';
 import { FamilyMember } from "./FamilyMember.entity";
 
 @ObjectType()
@@ -20,4 +21,15 @@ export class Family {
   @Field()
   @Column({ unique: true })
   familyCode: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  address: string;
+
+  @Field()
+  @OneToOne(() => FamilyMedical, inverse => inverse.family)
+  @JoinColumn()
+  medicals: FamilyMedical
+
 }
+
