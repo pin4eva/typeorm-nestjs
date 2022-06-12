@@ -25,6 +25,7 @@ import { config } from "./utils";
       password: "peter",
       subscribers: [ProfileSubscriber],
       logging: ["error"],
+      username:"postgres"
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,

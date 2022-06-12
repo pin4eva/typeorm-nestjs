@@ -75,9 +75,14 @@ export class SessionService {
       const isCurrent = await this.sessionRepo.findOne({
         where: { isCurrent: true },
       });
+     
+      if (isCurrent) {
       isCurrent.isCurrent = false;
+      await this.sessionRepo.save(isCurrent);
+      
+      }
+      
 
-      this.sessionRepo.save(isCurrent);
       // await this.sessionRepo.update({ id: isCurrent.id }, { isCurrent: false });
       await this.sessionRepo.update(id, { isCurrent: true });
       return true;
