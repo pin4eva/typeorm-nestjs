@@ -28,6 +28,14 @@ input CreateClassInput {
   teacher: String!
 }
 
+input CreateFamilyHospitalInput {
+  address: String!
+  contactName: String!
+  contactPhone: String!
+  familyId: ID!
+  name: String!
+}
+
 input CreateFamilyInput {
   familyName: String!
 }
@@ -81,16 +89,18 @@ type Family {
   address: String
   familyCode: String!
   familyName: String!
+  hospitals: [FamilyHospital!]!
   id: String!
-  medicals: FamilyMedical!
   members: [FamilyMember!]!
 }
 
-type FamilyMedical {
-  hospitalAddress: String
-  hospitalName: String
-  hospitalPhone: String
+type FamilyHospital {
+  address: String!
+  contactName: String!
+  contactPhone: String!
+  family: Family!
   id: String!
+  name: String!
 }
 
 type FamilyMember {
@@ -121,6 +131,7 @@ type Mutation {
   clearFamily: Boolean!
   createClass(input: CreateClassInput!): ClassRoom!
   createFamily(input: CreateFamilyInput!): Family!
+  createFamilyHospital(input: CreateFamilyHospitalInput!): FamilyHospital!
   createFamilyMember(input: CreateFamilyMemberInput!): FamilyMember!
   createProfile(input: CreateProfileInput!): Profile!
   createSession(input: CreateSessionInput!): Session!
@@ -130,6 +141,7 @@ type Mutation {
   deleteAuth(id: String!): Auth!
   deleteClass(id: String!): ClassRoom!
   deleteFamily(id: String!): Family!
+  deleteFamilyHospital(id: String!): FamilyHospital!
   deleteFamilyMember(id: String!): FamilyMember!
   deleteProfile(id: String!): Profile!
   deleteSession(id: String!): Session!
@@ -143,6 +155,7 @@ type Mutation {
   signup(input: SignupInput!): Auth!
   updateClass(input: UpdateClassInput!): ClassRoom!
   updateFamily(input: UpdateFamilyInput!): Family!
+  updateFamilyHospital(input: UpdateFamilyHospitalInput!): FamilyHospital!
   updateFamilyMember(input: UpdateFamilyMemberInput!): FamilyMember!
   updateProfile(input: UpdateProfileInput!): Profile!
   updateSession(input: UpdateSessionInput!): Session!
@@ -186,6 +199,7 @@ type Query {
   getFamilies: [Family!]!
   getFamily(id: String!): Family!
   getFamilyByFamilyCode(familyCode: String!): Family!
+  getFamilyHospitalByFamilyId(familyId: String!): [FamilyHospital!]!
   getFamilyMembers: [FamilyMember!]!
   getProfile(id: String!): Profile!
   getProfiles: [Profile!]!
@@ -252,6 +266,14 @@ scalar Timestamp
 input UpdateClassInput {
   id: ID!
   name: String!
+}
+
+input UpdateFamilyHospitalInput {
+  address: String
+  contactName: String
+  contactPhone: String
+  id: ID!
+  name: String
 }
 
 input UpdateFamilyInput {

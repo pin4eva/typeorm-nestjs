@@ -1,17 +1,20 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import {
+  CreateFamilyHospitalInput,
   CreateFamilyInput,
   CreateFamilyMemberInput,
+  UpdateFamilyHospitalInput,
   UpdateFamilyInput,
   UpdateFamilyMemberInput,
 } from "../dto/family.dto";
 import { Family } from "../entities/Family.entity";
+import { FamilyHospital } from '../entities/FamilyMedical.entity';
 import { FamilyMember } from "../entities/FamilyMember.entity";
 import { FamilyService } from "../services/family.service";
 
 @Resolver()
 export class FamilyResolver {
-  constructor(private readonly familyService: FamilyService) {}
+  constructor(private readonly familyService: FamilyService) { }
 
   @Query(() => [Family])
   getFamilies() {
@@ -59,6 +62,31 @@ export class FamilyResolver {
   deleteFamilyMember(@Args("id") id: string) {
     return this.familyService.deleteFamilyMember(id);
   }
+
+  // createFamilyHospital
+  @Mutation(() => FamilyHospital)
+  createFamilyHospital(@Args("input") input: CreateFamilyHospitalInput) {
+    return this.familyService.createFamilyHospital(input)
+  }
+
+  // updateFamilyHospital
+  @Mutation(() => FamilyHospital)
+  updateFamilyHospital(@Args("input") input: UpdateFamilyHospitalInput) {
+    return this.familyService.updateFamilyHospital(input)
+  }
+
+  // deleteFamilyHospital
+  @Mutation(() => FamilyHospital)
+  deleteFamilyHospital(@Args("id") id: string) {
+    return this.familyService.deleteFamilyHospital(id)
+  }
+
+  // getFamilyHospitalByFamilyId
+  @Query(() => [FamilyHospital])
+  getFamilyHospitalByFamilyId(@Args("familyId") familyId: string) {
+    return this.familyService.getHospitalsByFamilyId(familyId)
+  }
+
 
   @Mutation(() => Boolean)
   clearFamily() {

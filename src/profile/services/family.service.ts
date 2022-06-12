@@ -1,18 +1,22 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { generateID } from "src/utils/helpers";
 import { Repository } from "typeorm";
 import {
+  CreateFamilyHospitalInput,
   CreateFamilyInput,
   CreateFamilyMemberInput,
+  UpdateFamilyHospitalInput,
   UpdateFamilyInput,
   UpdateFamilyMemberInput,
 } from "../dto/family.dto";
 import { Family } from "../entities/Family.entity";
+import { FamilyHospital } from '../entities/FamilyMedical.entity';
 import { FamilyMember } from "../entities/FamilyMember.entity";
 import { Profile } from "../entities/profile.entity";
 
@@ -24,7 +28,11 @@ export class FamilyService {
     private readonly memberRepo: Repository<FamilyMember>,
     @InjectRepository(Profile)
     private readonly profileRepo: Repository<Profile>,
-  ) {}
+    @InjectRepository(FamilyHospital)
+    private readonly hospitalrepo: Repository<FamilyHospital>
+  ) { }
+
+  logger = new Logger(FamilyService.name)
 
   // Create Family
   async createFamily(input: CreateFamilyInput): Promise<Family> {
@@ -64,7 +72,7 @@ export class FamilyService {
     try {
       const family = await this.familyRepo.findOne({
         where: { id },
-        relations: ["members", "members.profile.student"],
+        relations: ["members", "members.profile.student", "hospitals"],
       });
       if (!family) throw new NotFoundException("Family id not correct");
       return family;
@@ -166,7 +174,7 @@ export class FamilyService {
       profile.family = family;
 
       await this.profileRepo.save(profile);
-      await this.memberRepo.save(member);
+      await this.memberRepo.save(member); const hospital = await this
       return member;
     } catch (error) {
       throw error;
@@ -195,6 +203,59 @@ export class FamilyService {
     } catch (error) {
       throw error;
     }
+  }
+
+  /** Family Hospital */
+
+  // createFamilyHospital
+  async createFamilyHospital(input: CreateFamilyHospitalInput): Promise<FamilyHospital> {
+    const { familyId, ...rest } = input;
+    const family = await this.getFamily(familyId);
+    if (!family) throw new BadRequestException("Invalid Family ID");
+    try {
+      const hospital = this.hospitalrepo.create(rest);
+      hospital.id = generateID();
+      hospital.family = family;
+
+      await this.hospitalrepo.save(hospital)
+
+      return hospital;
+    } catch (error) {
+      this.logger.error(error)
+    }
+  }
+
+  // UpdateFamilyHospital
+  async updateFamilyHospital(input: UpdateFamilyHospitalInput): Promise<FamilyHospital> {
+    const { id } = input;
+    const hospital = await this.hospitalrepo.findOne({ where: { id } });
+    if (!hospital) throw new BadRequestException("Invalid Hospital ID");
+    try {
+      Object.assign(hospital, input)
+
+      await this.hospitalrepo.save(hospital)
+
+      return hospital;
+    } catch (error) {
+      this.logger.error(error)
+    }
+  }
+
+  // DeleteFamilyHospitala
+  async deleteFamilyHospital(id: string): Promise<FamilyHospital> {
+    const hospital = await this.hospitalrepo.findOne({ where: { id } });
+    if (!hospital) throw new BadRequestException("Invalid Hospital ID");
+    try {
+      await this.hospitalrepo.delete(id)
+      return hospital;
+    } catch (error) {
+      this.logger.error(error)
+    }
+  }
+
+  // Get Hosptals by FamilyId
+  async getHospitalsByFamilyId(familyId: string): Promise<FamilyHospital[]> {
+    return await this.hospitalrepo.find({ where: { family: { id: familyId } } })
   }
 
   // clear Family

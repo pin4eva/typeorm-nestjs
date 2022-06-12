@@ -1,4 +1,4 @@
-import { Field, ID, InputType, ObjectType } from "@nestjs/graphql";
+import { Field, ID, InputType, ObjectType, OmitType, PartialType } from "@nestjs/graphql";
 import { IsString } from "class-validator";
 
 @ObjectType()
@@ -37,4 +37,33 @@ export class UpdateFamilyMemberInput {
   id: string;
   @Field()
   role: string;
+}
+
+@ObjectType()
+@InputType()
+export class CreateFamilyHospitalInput {
+  @Field()
+  name: string;
+
+  @Field()
+
+  address: string;
+
+  @Field()
+
+  contactPhone: string;
+
+  @Field()
+  contactName: string
+
+
+  @Field(() => ID)
+  familyId: string;
+}
+
+@ObjectType()
+@InputType()
+export class UpdateFamilyHospitalInput extends PartialType(OmitType(CreateFamilyHospitalInput, ["familyId"], InputType)) {
+  @Field(() => ID)
+  id: string
 }

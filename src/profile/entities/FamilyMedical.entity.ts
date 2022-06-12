@@ -1,26 +1,31 @@
-import { ObjectType, Field } from '@nestjs/graphql';
-import { Entity, PrimaryColumn, Column, OneToOne } from 'typeorm';
+import { Field, ObjectType } from '@nestjs/graphql';
+import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Family } from './Family.entity';
 
 @ObjectType()
 @Entity()
-export class FamilyMedical {
+export class FamilyHospital {
   @Field()
   @PrimaryColumn("varchar")
   id: string
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  hospitalName: string;
+  @Field()
+  @Column()
+  name: string;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  hospitalAddress: string;
+  @Field()
+  @Column()
+  address: string;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  hospitalPhone: string;
+  @Field()
+  @Column()
+  contactPhone: string;
 
-  @OneToOne(() => Family, inverse => inverse.medicals)
+  @Field()
+  @Column()
+  contactName: string
+
+  @Field(() => Family)
+  @ManyToOne(() => Family, inverse => inverse.hospitals)
   family: Family
 }
