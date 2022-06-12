@@ -57,92 +57,93 @@ export class ProfileService {
       lastName: input.lastName,
     });
 
-    try {
-      // If name from input is same as cached name, throw error
-      if (name === (await this.cache.get("name"))) {
-        throw new BadRequestException("Possible duplicate entiry");
-      }
+    // If name from input is same as cached name, throw error
+    if (name === (await this.cache.get("name"))) {
+      throw new BadRequestException("Possible duplicate entiry");
+    }
 
-      // initialize user and image to be filled later
-      let user: Profile;
-      let image: string;
+    // initialize user and image to be filled later
+    let user: Profile;
+    let image: string;
 
-      // initialize member in case
-      let isMember: FamilyMember;
-      let family: Family;
+    // initialize member in case
+    let isMember: FamilyMember;
+    let family: Family;
 
-      // Require email for non student accounts
-      if (accountType !== AccountTypeEnum.Student) {
-        if (!email) throw new BadRequestException("Email is required");
-        user = await this.profileRepo.findOneBy({ email });
-      } else {
-        if (!input?.image) throw new BadRequestException("Image is required");
-      }
+    // Require email for non student accounts
+    if (accountType !== AccountTypeEnum.Student) {
+      if (!email) throw new BadRequestException("Email is required");
+      user = await this.profileRepo.findOneBy({ email });
+    } else {
+      if (!input?.image) throw new BadRequestException("Image is required");
+    }
 
-      // Avoid duplicate emails
-      if (user) throw new BadRequestException("Email is already registered");
+    // Avoid duplicate emails
+    if (user) throw new BadRequestException("Email is already registered");
 
-      // remove familyCode and familyRole from payload
-      const { familyCode, familyRole, ...rest } = input;
+    // remove familyCode and familyRole from payload
+    const { familyCode, familyRole, ...rest } = input;
 
-      // Create an instance of the Profile
-      user = this.profileRepo.create({
-        ...rest,
-        accountTypes: [input.accountType],
+    // Create an instance of the Profile
+    user = this.profileRepo.create({
+      ...rest,
+      accountTypes: [input.accountType],
+      id: generateID(),
+    });
+
+    let createdStudent: Student;
+
+    // If the account is a Student account, create a student profile also
+    if (accountType === AccountTypeEnum.Student) {
+      const classRoom = await this.classRepo.findOneByOrFail({
+        id: input.class,
+      });
+
+      const student = this.studentRepo.create({
+        regNo: await this.createRegNo(),
         id: generateID(),
       });
 
-      let createdStudent: Student;
+      student.class = classRoom;
+      student.profile = user;
 
-      // If the account is a Student account, create a student profile also
-      if (accountType === AccountTypeEnum.Student) {
-        const classRoom = await this.classRepo.findOneByOrFail({
-          id: input.class,
+      createdStudent = student;
+    }
+
+    // Image is optional
+    if (input.image) {
+      image = await cloudinaryUpload(input.image).catch((err) => {
+        console.log(err);
+        throw new BadGatewayException("Unable to upload image to server");
+      });
+      user.image = image;
+    }
+
+    // If a familyCode was added to payload, create a member
+    if (familyCode) {
+      family = await this.familyService
+        .getFamilyByFamilyCode(familyCode)
+        .catch((err) => {
+          throw err;
         });
 
-        const student = this.studentRepo.create({
-          regNo: await this.createRegNo(),
-          id: generateID(),
-        });
+      const member = this.memberRepo.create({
+        id: generateID(),
+        role:
+          accountType === AccountTypeEnum.Student
+            ? FamilyRoleEnum.Student
+            : familyRole,
+      });
 
-        student.class = classRoom;
-        student.profile = user;
+      member.family = family;
+      member.profile = user;
+      user.family = family;
+      isMember = member;
+    }
 
-        createdStudent = student;
-      }
+    user.lastSeen = new Date(Date.now());
 
-      // Image is optional
-      if (input.image) {
-        image = await cloudinaryUpload(input.image).catch((err) => {
-          console.log(err);
-          throw new BadGatewayException("Unable to upload image to server");
-        });
-        user.image = image;
-      }
-
-      // If a familyCode was added to payload, create a member
-      if (familyCode) {
-        family = await this.familyService
-          .getFamilyByFamilyCode(familyCode)
-          .catch((err) => {
-            throw err;
-          });
-
-        const member = this.memberRepo.create({
-          id: generateID(),
-          role:
-            accountType === AccountTypeEnum.Student
-              ? FamilyRoleEnum.Student
-              : familyRole,
-        });
-
-        member.family = family;
-        member.profile = user;
-        user.family = family;
-        isMember = member;
-      }
-
-      user.lastSeen = new Date(Date.now());
+    try {
 
       await this.profileRepo.save(user);
       await this.cache.set("name", name);
@@ -153,10 +154,7 @@ export class ProfileService {
         await this.memberRepo.save(isMember);
       }
 
-      // user = await this.profileRepo.findOne({
-      //   where: { id: user.id },
-      //   relations: ["student", "teacher", "family"],
-      // });
+
       const mappedResult: Profile = {
         ...user,
         dob: new Date(user?.dob),

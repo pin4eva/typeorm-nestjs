@@ -131,10 +131,10 @@ export class StudentService {
       throw new BadRequestException("Student Medical already exist")
     }
 
-    try {
-      const student = await this.getStudent(input.studentId);
+    const student = await this.getStudent(input.studentId);
+    if (!student) throw new BadRequestException("Student not found")
 
-      if (!student) throw new BadRequestException("Student not found")
+    try {
       const medical = this.medicalRepo.create(rest);
       medical.id = generateID()
       medical.student = student;
@@ -150,10 +150,10 @@ export class StudentService {
   // updateMedicalRecord
   async updateMedicalRecord(input: UpdateStudentMedicalRecordInput): Promise<StudentMedical> {
     const { id } = input
-    try {
-      const medical = await this.medicalRepo.findOneByOrFail({ id });
-      if (!medical) throw new NotFoundException("Invalid medical id");
+    const medical = await this.medicalRepo.findOneByOrFail({ id });
+    if (!medical) throw new NotFoundException("Invalid medical id");
 
+    try {
       Object.assign(medical, input);
 
       await this.medicalRepo.save(medical)
@@ -168,8 +168,9 @@ export class StudentService {
 
   // deleteMedicalRecord
   async deleteMedicalRecord(id: string): Promise<StudentMedical> {
+    const medical = await this.medicalRepo.findOneByOrFail({ id });
+    if (!medical) throw new NotFoundException("Invalid Medical ID")
     try {
-      const medical = await this.medicalRepo.findOneByOrFail({ id });
 
       await this.medicalRepo.delete(id)
       return medical;
@@ -196,10 +197,10 @@ export class StudentService {
   // createContact
   async createContact(input: CreateStudentContactInput): Promise<StudentContact> {
     const { studentId, ...rest } = input;
-    try {
-      const student = await this.getStudent(studentId);
-      if (!student) throw new BadRequestException("Student ID is invalid");
+    const student = await this.getStudent(studentId);
+    if (!student) throw new BadRequestException("Student ID is invalid");
 
+    try {
       const contact = this.contactRepo.create(rest);
       contact.id = generateID();
       contact.student = student;
@@ -216,10 +217,9 @@ export class StudentService {
   // UpdateContact
   async updateContact(input: UpdateStudentContactInput): Promise<StudentContact> {
     const { id } = input;
+    const contact = await this.contactRepo.findOneBy({ id });
+    if (!contact) throw new BadRequestException("Contact ID is invalid");
     try {
-      const contact = await this.contactRepo.findOneBy({ id });
-      if (!contact) throw new BadRequestException("Contact ID is invalid");
-
       Object.assign(contact, input)
 
       await this.contactRepo.save(contact)
@@ -233,13 +233,10 @@ export class StudentService {
 
   // deleteContact
   async deleteContact(id: string): Promise<StudentContact> {
+    const contact = await this.contactRepo.findOneBy({ id });
+    if (!contact) throw new NotFoundException("Invalid contact ID");
     try {
-      const contact = await this.contactRepo.findOneBy({ id });
-
-      if (!contact) throw new NotFoundException("Invalid contact ID");
-
       await this.contactRepo.delete(id)
-
       return contact;
     } catch (error) {
       this.logger.error(error)
