@@ -134,7 +134,7 @@ input FilterAttendanceInput {
   date: String
   student: String
   term: String
-  week: String
+  week: Float
 }
 
 input ForgotPasswordInput {
@@ -223,6 +223,7 @@ type Profile {
 type Query {
   getAttendance(input: FilterAttendanceInput!): [Attendance!]!
   getAttendanceById(id: String!): Attendance!
+  getAttendanceByStudentId(input: FilterAttendanceInput!): [Attendance!]!
   getAuths: [Auth!]
   getClass(id: String!): ClassRoom!
   getClasses: [ClassRoom!]!
@@ -306,7 +307,7 @@ input UpdateAttendanceInput {
   date: String
   id: ID!
   term: String
-  week: String
+  week: Float
 }
 
 input UpdateClassInput {

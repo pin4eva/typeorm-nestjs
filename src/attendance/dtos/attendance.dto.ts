@@ -34,7 +34,7 @@ export class UpdateAttendanceInput {
   id: string;
 
   @Field({ nullable: true })
-  week: string;
+  week: number;
   @Field({ nullable: true })
   date: string
   @Field({ nullable: true })
@@ -52,7 +52,7 @@ export class FilterAttendanceInput {
   @Field({ nullable: true })
   student: string;
   @Field({ nullable: true })
-  week: string;
+  week: number;
   @Field({ nullable: true })
   date: string;
 }

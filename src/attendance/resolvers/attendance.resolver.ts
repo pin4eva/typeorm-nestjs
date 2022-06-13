@@ -36,4 +36,11 @@ export class AttendanceResolver {
   getAttendance(@Args("input") input: FilterAttendanceInput) {
     return this.attendanceService.getAttendance(input)
   }
+
+
+  // getAttendanceByClass
+  @Query(() => [Attendance])
+  getAttendanceByStudentId(@Args("input") input: FilterAttendanceInput) {
+    return this.attendanceService.getAttendanceByByStudent(input)
+  }
 }

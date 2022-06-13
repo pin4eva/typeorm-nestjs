@@ -63,11 +63,11 @@ export class AttendanceService {
 
   async getAttendance(input: FilterAttendanceInput): Promise<Attendance[]> {
     try {
-      const attendance = await this.attendanceRepo.createQueryBuilder("attendance")
+      let attendance: any = this.attendanceRepo.createQueryBuilder("attendance")
         .andWhere("attendance.classId = :classId", { classId: input.class })
-        .andWhere("attendance.studentId = :studentId", { studentId: input.student })
-        .andWhere("attendance.week = :week", { week: Number(input?.week) })
-        .getMany();
+        .andWhere("attendance.term = :term", { term: input?.term })
+
+      attendance = input.week ? attendance.andWhere("attendance.week = :week", { week: Number(input.week) }).getMany() : attendance.getMany()
 
       return attendance;
     } catch (error) {
@@ -75,11 +75,23 @@ export class AttendanceService {
     }
   }
 
-  // get Attendance by class, week
-  async getAttendanceByClass() { }
 
   // Get attendance by Student, week
-  async getAttendanceByByStudent() { }
+  async getAttendanceByByStudent(input: FilterAttendanceInput): Promise<Attendance[]> {
+
+    try {
+      let attendance: any = this.attendanceRepo.createQueryBuilder("attendance")
+        .where("attendance.studentId = :student", { student: input.student })
+        .andWhere("attendance.classId = :class", { class: input.class })
+        .andWhere("attendance.term = :term", { term: input.term });
+
+      attendance = input.week ? attendance.andWhere("attendance.week = :week", { week: Number(input.week) }).getMany() : attendance.getMany()
+
+      return attendance;
+    } catch (error) {
+      this.logger.error(error)
+    }
+  }
 
   // get attendance
   async getAttendanceById(id: string): Promise<Attendance> {
