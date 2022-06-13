@@ -1,7 +1,8 @@
 import { Field, ObjectType } from "@nestjs/graphql";
+import { Attendance } from 'src/attendance/entities/attendance.entity';
 
 import { Profile } from "src/profile/entities/profile.entity";
-import { Student } from 'src/profile/entities/students/student.entity';
+import { Student } from 'src/student/entities/student.entity';
 import {
   Column,
   Entity,
@@ -37,4 +38,8 @@ export class ClassRoom {
   @OneToMany(() => Student, (inverse) => inverse.class, { cascade: true })
   @JoinColumn()
   students: Student[];
+
+  @Field(() => [Attendance])
+  @OneToMany(() => Attendance, attendance => attendance.class)
+  attendance: Attendance[]
 }

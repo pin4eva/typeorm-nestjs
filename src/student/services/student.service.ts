@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Student } from 'src/profile/entities/students/student.entity';
+import { Student } from 'src/student/entities/student.entity';
 import { generateID } from 'src/utils/helpers';
 import { Repository } from "typeorm";
-import { CreateStudentContactInput, CreateStudentMedicalRecordInput, UpdateStudentContactInput, UpdateStudentMedicalRecordInput } from '../dto/student.dto';
-import { StudentContact } from '../entities/students/student-contact.entity';
-import { StudentMedical } from '../entities/students/student-medical.entity';
+import { CreateStudentContactInput, CreateStudentMedicalRecordInput, UpdateStudentContactInput, UpdateStudentMedicalRecordInput } from '../../profile/dto/student.dto';
+import { StudentContact } from '../entities/student-contact.entity';
+import { StudentMedical } from '../entities/student-medical.entity';
 
 // import { ProfileService } from "./profile.service";
 

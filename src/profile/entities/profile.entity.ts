@@ -17,9 +17,9 @@ import {
 } from "typeorm";
 
 import { AccountTypeEnum } from "../interfaces/profile.interface";
-import { Family } from "./Family.entity";
-import { FamilyMember } from "./FamilyMember.entity";
-import { Student } from './students/student.entity';
+
+import { Student } from '../../student/entities/student.entity';
+import { Family } from 'src/family/entities/Family.entity';
 
 @ObjectType()
 @Entity()

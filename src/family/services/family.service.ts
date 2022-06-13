@@ -14,11 +14,11 @@ import {
   UpdateFamilyHospitalInput,
   UpdateFamilyInput,
   UpdateFamilyMemberInput,
-} from "../dto/family.dto";
+} from "../../profile/dto/family.dto";
 import { Family } from "../entities/Family.entity";
 import { FamilyHospital } from '../entities/FamilyMedical.entity';
 import { FamilyMember } from "../entities/FamilyMember.entity";
-import { Profile } from "../entities/profile.entity";
+import { Profile } from "../../profile/entities/profile.entity";
 
 @Injectable()
 export class FamilyService {

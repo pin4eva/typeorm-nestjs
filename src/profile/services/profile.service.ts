@@ -22,13 +22,14 @@ import {
   UpdateProfileInput,
   UploadImageInput,
 } from "../dto/profile.dto";
-import { Family } from "../entities/Family.entity";
-import { FamilyMember } from "../entities/FamilyMember.entity";
+
 import { Profile } from "../entities/profile.entity";
-import { Student } from '../entities/students/student.entity';
+import { Student } from '../../student/entities/student.entity';
 import { FamilyRoleEnum } from "../interfaces/famiy.interface";
 import { AccountTypeEnum } from "../interfaces/profile.interface";
-import { FamilyService } from "./family.service";
+import { FamilyService } from "../../family/services/family.service";
+import { Family } from 'src/family/entities/Family.entity';
+import { FamilyMember } from 'src/family/entities/FamilyMember.entity';
 
 @Injectable()
 export class ProfileService {

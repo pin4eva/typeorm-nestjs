@@ -1,4 +1,5 @@
 import { Field, ObjectType } from "@nestjs/graphql";
+import { Profile } from 'src/profile/entities/profile.entity';
 
 import {
   Column,
@@ -9,7 +10,7 @@ import {
   PrimaryColumn,
 } from "typeorm";
 import { Family } from "./Family.entity";
-import { Profile } from "./profile.entity";
+
 
 @ObjectType()
 @Entity()

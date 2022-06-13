@@ -6,7 +6,7 @@ import {
   UpdateFamilyHospitalInput,
   UpdateFamilyInput,
   UpdateFamilyMemberInput,
-} from "../dto/family.dto";
+} from "../../profile/dto/family.dto";
 import { Family } from "../entities/Family.entity";
 import { FamilyHospital } from '../entities/FamilyMedical.entity';
 import { FamilyMember } from "../entities/FamilyMember.entity";

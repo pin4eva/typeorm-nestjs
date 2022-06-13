@@ -2,6 +2,15 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Attendance {
+  class: ClassRoom!
+  date: Timestamp!
+  id: ID!
+  student: Student!
+  term: Term!
+  week: Int!
+}
+
 type Auth {
   email: String!
   id: String!
@@ -15,11 +24,20 @@ input ChangeAuthPasswordInput {
 }
 
 type ClassRoom {
+  attendance: [Attendance!]!
   id: String!
   name: String!
   session: Session
   students: [Student!]
   teacher: Profile
+}
+
+input CreateAttendanceInput {
+  classId: String!
+  date: String!
+  studentId: String!
+  term: String!
+  week: Int!
 }
 
 input CreateClassInput {
@@ -111,6 +129,14 @@ type FamilyMember {
   role: String!
 }
 
+input FilterAttendanceInput {
+  class: String
+  date: String
+  student: String
+  term: String
+  week: String
+}
+
 input ForgotPasswordInput {
   emailToken: String!
   password: String!
@@ -129,6 +155,7 @@ type LoginResponse {
 type Mutation {
   changeAuthPassword(input: ChangeAuthPasswordInput!): Boolean!
   clearFamily: Boolean!
+  createAttendance(input: CreateAttendanceInput!): Attendance!
   createClass(input: CreateClassInput!): ClassRoom!
   createFamily(input: CreateFamilyInput!): Family!
   createFamilyHospital(input: CreateFamilyHospitalInput!): FamilyHospital!
@@ -138,6 +165,7 @@ type Mutation {
   createStudentContact(input: CreateStudentContactInput!): StudentContact!
   createStudentMedical(input: CreateStudentMedicalRecordInput!): StudentMedical!
   deleteAllProfile: [Profile!]!
+  deleteAttendance(id: String!): Attendance!
   deleteAuth(id: String!): Auth!
   deleteClass(id: String!): ClassRoom!
   deleteFamily(id: String!): Family!
@@ -153,6 +181,7 @@ type Mutation {
   resetPassword(email: String!): Boolean!
   setCurrentSession(id: String!): Boolean!
   signup(input: SignupInput!): Auth!
+  updateAttendance(input: UpdateAttendanceInput!): Attendance!
   updateClass(input: UpdateClassInput!): ClassRoom!
   updateFamily(input: UpdateFamilyInput!): Family!
   updateFamilyHospital(input: UpdateFamilyHospitalInput!): FamilyHospital!
@@ -192,6 +221,8 @@ type Profile {
 }
 
 type Query {
+  getAttendance(input: FilterAttendanceInput!): [Attendance!]!
+  getAttendanceById(id: String!): Attendance!
   getAuths: [Auth!]
   getClass(id: String!): ClassRoom!
   getClasses: [ClassRoom!]!
@@ -231,6 +262,7 @@ input SignupInput {
 }
 
 type Student {
+  attendance: [Attendance!]!
   class: ClassRoom!
   contacts: [StudentContact!]!
   id: ID!
@@ -258,10 +290,24 @@ type StudentMedical {
   student: Student!
 }
 
+"""Session term"""
+enum Term {
+  FIRST_TERM
+  SECOND_TERM
+  THIRD_TERM
+}
+
 """
 `Date` type as integer. Type represents date and time as number of milliseconds from start of UNIX epoch.
 """
 scalar Timestamp
+
+input UpdateAttendanceInput {
+  date: String
+  id: ID!
+  term: String
+  week: String
+}
 
 input UpdateClassInput {
   id: ID!

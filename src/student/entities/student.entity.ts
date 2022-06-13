@@ -1,4 +1,5 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql";
+import { Attendance } from 'src/attendance/entities/attendance.entity';
 import { ClassRoom } from "src/class/entities/class.entity";
 import {
   AfterLoad,
@@ -10,7 +11,7 @@ import {
   OneToOne,
   PrimaryColumn,
 } from "typeorm";
-import { Profile } from "../profile.entity";
+import { Profile } from "../../profile/entities/profile.entity";
 import { StudentContact } from './student-contact.entity';
 import { StudentMedical } from './student-medical.entity';
 
@@ -52,6 +53,9 @@ export class Student {
   @JoinColumn()
   medicalRecord: StudentMedical
 
+  @Field(() => [Attendance])
+  @OneToMany(() => Attendance, attendance => attendance.student)
+  attendance: Attendance[]
 
   @AfterLoad()
   getRegNoInUpper() {

@@ -1,17 +1,17 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 
 import { ProfileService } from "src/profile/services/profile.service";
-import { CreateStudentContactInput, CreateStudentMedicalRecordInput, UpdateStudentContactInput, UpdateStudentMedicalRecordInput } from '../dto/student.dto';
-import { StudentContact } from '../entities/students/student-contact.entity';
-import { StudentMedical } from '../entities/students/student-medical.entity';
-import { Student } from '../entities/students/student.entity';
+import { CreateStudentContactInput, CreateStudentMedicalRecordInput, UpdateStudentContactInput, UpdateStudentMedicalRecordInput } from '../../profile/dto/student.dto';
+import { StudentContact } from '../entities/student-contact.entity';
+import { StudentMedical } from '../entities/student-medical.entity';
+import { Student } from '../entities/student.entity';
 import { StudentService } from "../services/student.service";
 
 @Resolver()
 export class StudentResolver {
   constructor(
     private studentService: StudentService,
-    private profileService: ProfileService,
+
   ) { }
 
   // get all students

@@ -7,10 +7,13 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
 import { ClassModule } from "./class/class.module";
+import { FamilyModule } from './family/family.module';
 import { CurrentUserMiddleware } from "./middlewares/current-user.middleware";
 import { ProfileSubscriber } from "./profile/entities/profile.entity";
 import { ProfileModule } from "./profile/profile.module";
+import { StudentModule } from './student/student.module';
 import { config } from "./utils";
+import { AttendanceModule } from './attendance/attendance.module';
 
 @Module({
   controllers: [AppController],
@@ -24,8 +27,8 @@ import { config } from "./utils";
       database: "bdmis",
       password: "peter",
       subscribers: [ProfileSubscriber],
-      logging: ["error"],
-      username:"postgres"
+      logging: ["error", "query"],
+      username: "postgres"
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
@@ -41,6 +44,9 @@ import { config } from "./utils";
 
     ProfileModule,
     ClassModule,
+    StudentModule,
+    FamilyModule,
+    AttendanceModule
   ],
 })
 export class AppModule {
