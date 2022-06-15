@@ -8,9 +8,10 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { Cache } from "cache-manager";
 import { ProfileService } from "src/profile/services/profile.service";
+import { Student } from "src/student/entities/student.entity";
 import { generateID } from "src/utils/helpers";
 import { Repository } from "typeorm";
-import { CreateClassInput } from "../dtos/class.dto";
+import { AddStudentToClassInput, CreateClassInput } from "../dtos/class.dto";
 import { UpdateClassInput } from "../dtos/update-class.dto";
 import { ClassRoom } from "../entities/class.entity";
 import { SessionService } from "./session.service";
@@ -23,6 +24,9 @@ export class ClassService {
     private readonly profileService: ProfileService,
     private readonly sessionService: SessionService,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
+
+    @InjectRepository(Student)
+    private readonly studentRepo: Repository<Student>,
   ) {}
 
   // Create class
@@ -108,4 +112,26 @@ export class ClassService {
       throw error;
     }
   }
+
+  async addStudentToClass(input: AddStudentToClassInput): Promise<ClassRoom> {
+    const student = await this.studentRepo.findOneBy({ id: input.studentId });
+    const classRoom = await this.classRepo.findOneBy({ id: input.classId });
+    if (!student || !classRoom)
+      throw new NotFoundException("Invalid class or student ID");
+
+    try {
+      student.class = classRoom;
+      return classRoom;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // // promote to class
+  // async promoteToClass(input: PromoteStudentsInput): Promise<ClassRoom> {
+  //   try {
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 }

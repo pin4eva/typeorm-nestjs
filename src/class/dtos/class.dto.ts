@@ -14,3 +14,27 @@ export class CreateClassInput {
   @Field()
   session: string;
 }
+
+@ObjectType()
+@InputType()
+export class PromoteStudentsInput {
+  @IsNotEmpty()
+  @Field(() => ID)
+  class: string;
+
+  @IsNotEmpty()
+  @Field(() => [String])
+  students: string[];
+}
+
+@ObjectType()
+@InputType()
+export class AddStudentToClassInput {
+  @IsNotEmpty()
+  @Field(() => ID)
+  classId: string;
+
+  @IsNotEmpty()
+  @Field(() => ID)
+  studentId: string;
+}

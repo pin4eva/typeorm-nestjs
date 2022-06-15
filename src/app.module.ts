@@ -14,6 +14,7 @@ import { ProfileModule } from "./profile/profile.module";
 import { StudentModule } from './student/student.module';
 import { config } from "./utils";
 import { AttendanceModule } from './attendance/attendance.module';
+import { SubjectsModule } from './subject/subject.module';
 
 @Module({
   controllers: [AppController],
@@ -46,7 +47,8 @@ import { AttendanceModule } from './attendance/attendance.module';
     ClassModule,
     StudentModule,
     FamilyModule,
-    AttendanceModule
+    AttendanceModule,
+    SubjectsModule
   ],
 })
 export class AppModule {

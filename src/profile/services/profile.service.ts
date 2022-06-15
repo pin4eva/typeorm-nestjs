@@ -263,11 +263,6 @@ export class ProfileService {
         },
         relations: ["family"],
       });
-      // const profiles = await this.profileRepo
-      //   .createQueryBuilder("profile")
-
-      //   .where(`LOWER(name) LIKE LOWER('%${name}%')`)
-      //   .getMany();
 
       return profiles;
     } catch (error) {
@@ -334,6 +329,8 @@ export class ProfileService {
       return null;
     }
   }
+
+  async updateAccountType() { }
 
   private async createRegNo() {
     const students = await this.studentRepo.find();

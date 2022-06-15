@@ -1,8 +1,8 @@
 import { Field, ObjectType } from "@nestjs/graphql";
-import { Attendance } from 'src/attendance/entities/attendance.entity';
+import { Attendance } from "src/attendance/entities/attendance.entity";
 
 import { Profile } from "src/profile/entities/profile.entity";
-import { Student } from 'src/student/entities/student.entity';
+import { Student } from "src/student/entities/student.entity";
 import {
   Column,
   Entity,
@@ -40,6 +40,6 @@ export class ClassRoom {
   students: Student[];
 
   @Field(() => [Attendance])
-  @OneToMany(() => Attendance, attendance => attendance.class)
-  attendance: Attendance[]
+  @OneToMany(() => Attendance, (attendance) => attendance.class)
+  attendance: Attendance[];
 }
