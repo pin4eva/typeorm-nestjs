@@ -82,7 +82,7 @@ export class StudentService {
     try {
       const student = await this.studentRepo.findOne({
         where: { regNo },
-        relations: ["class", "profile", "profile.family"],
+        relations: ["profile", "profile.family"],
       });
       if (!student) throw new NotFoundException("Student not found");
 
