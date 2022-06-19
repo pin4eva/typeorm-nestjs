@@ -1,6 +1,6 @@
-import { Field, ID, InputType, Int, ObjectType } from '@nestjs/graphql';
-import { IsNumber, IsString } from 'class-validator';
-import { TermEnum } from '../entities/attendance.entity';
+import { Field, ID, InputType, Int, ObjectType } from "@nestjs/graphql";
+import { IsNumber, IsString } from "class-validator";
+import { TermEnum } from "../entities/attendance.entity";
 
 @ObjectType()
 @InputType()
@@ -15,19 +15,18 @@ export class CreateAttendanceInput {
 
   @IsString()
   @Field()
-  term: TermEnum
+  term: TermEnum;
 
   @IsNumber()
   @Field(() => Int)
-  week: number
+  week: number;
 
   @IsString()
   @Field()
-  date: string
-
+  date: string;
 }
 
-ObjectType()
+ObjectType();
 @InputType()
 export class UpdateAttendanceInput {
   @Field(() => ID)
@@ -36,10 +35,9 @@ export class UpdateAttendanceInput {
   @Field({ nullable: true })
   week: number;
   @Field({ nullable: true })
-  date: string
+  date: string;
   @Field({ nullable: true })
-  term: TermEnum
-
+  term: TermEnum;
 }
 
 @ObjectType()
@@ -54,5 +52,28 @@ export class FilterAttendanceInput {
   @Field({ nullable: true })
   week: number;
   @Field({ nullable: true })
+  date: string;
+}
+
+@ObjectType()
+@InputType()
+export class BulkAttendanceInput {
+  @IsString()
+  @Field()
+  classId: string;
+
+  @Field(() => [String])
+  studentIds: string[];
+
+  @IsString()
+  @Field()
+  term: TermEnum;
+
+  @IsNumber()
+  @Field(() => Int)
+  week: number;
+
+  @IsString()
+  @Field()
   date: string;
 }

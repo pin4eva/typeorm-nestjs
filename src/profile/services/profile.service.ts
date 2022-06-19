@@ -106,11 +106,8 @@ export class ProfileService {
         id: generateID(),
       });
 
-      const classStudents = classRoom.students;
       student.profile = user;
-      classRoom.students = classStudents?.length
-        ? [...classStudents, student]
-        : [student];
+      classRoom.students.push(student);
 
       createdStudent = student;
     }

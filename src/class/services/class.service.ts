@@ -11,7 +11,11 @@ import { ProfileService } from "src/profile/services/profile.service";
 import { Student } from "src/student/entities/student.entity";
 import { generateID } from "src/utils/helpers";
 import { Repository } from "typeorm";
-import { AddStudentToClassInput, CreateClassInput } from "../dtos/class.dto";
+import {
+  AddStudentToClassInput,
+  CreateClassInput,
+  PromoteStudentsInput,
+} from "../dtos/class.dto";
 import { UpdateClassInput } from "../dtos/update-class.dto";
 import { ClassRoom } from "../entities/class.entity";
 import { SessionService } from "./session.service";
@@ -113,32 +117,6 @@ export class ClassService {
     }
   }
 
-  async addStudentToClass(input: AddStudentToClassInput): Promise<ClassRoom> {
-    const student = await this.studentRepo.findOneBy({ id: input.studentId });
-    const classRoom = await this.classRepo.findOne({
-      where: { id: input.classId },
-      relations: ["students"],
-    });
-
-    if (!student) throw new NotFoundException("Invalid student ID");
-    if (!classRoom) throw new NotFoundException("Invalid class ID");
-
-    try {
-      // student.class = [classRoom];
-
-      // await this.studentRepo.save(student);
-      classRoom.students.push(student);
-      // classRoom.students = classStudents?.length
-      //   ? [...classStudents, student]
-      //   : [student];
-
-      await this.classRepo.save(classRoom);
-      return classRoom;
-    } catch (error) {
-      throw error;
-    }
-  }
-
   // Get students by session
   async getStudentsBySession(session: string): Promise<Student[]> {
     try {
@@ -150,7 +128,12 @@ export class ClassService {
       let students: Student[] = [];
 
       for (const c of classes) {
-        students = [...students, ...c.students];
+        const { students: classStudents, ...rest } = c;
+        const mappedStudents = classStudents.map((s) => ({
+          ...s,
+          class: rest,
+        }));
+        students = [...students, ...mappedStudents] as Student[];
       }
 
       return students;
@@ -167,17 +150,56 @@ export class ClassService {
         relations: ["students.profile", "students.profile.family"],
       });
 
-      return classRoom.students;
+      const { students, ...rest } = classRoom;
+
+      const mappedStudents = students.map((student) => ({
+        ...student,
+        class: rest,
+      })) as Student[];
+
+      return mappedStudents;
     } catch (error) {
       throw error;
     }
   }
 
-  // // promote to class
-  // async promoteToClass(input: PromoteStudentsInput): Promise<ClassRoom> {
-  //   try {
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
+  async addStudentToClass(input: AddStudentToClassInput): Promise<ClassRoom> {
+    const student = await this.studentRepo.findOneBy({ id: input.studentId });
+    const classRoom = await this.classRepo.findOne({
+      where: { id: input.classId },
+      relations: ["students"],
+    });
+
+    if (!student) throw new NotFoundException("Invalid student ID");
+    if (!classRoom) throw new NotFoundException("Invalid class ID");
+
+    try {
+      classRoom.students.push(student);
+
+      await this.classRepo.save(classRoom);
+      return classRoom;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // promote to class
+  async promoteToClass(input: PromoteStudentsInput): Promise<ClassRoom> {
+    const classRoom = await this.classRepo.findOne({
+      where: { id: input.class },
+      relations: ["students"],
+    });
+    try {
+      for (const studentId of input.students) {
+        const student = new Student();
+        student.id = studentId;
+        classRoom.students.push(student);
+      }
+      await this.classRepo.save(classRoom);
+
+      return classRoom;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { ClassRoom } from "src/class/entities/class.entity";
 import { Student } from "src/student/entities/student.entity";
 import { generateID } from "src/utils/helpers";
 import { Repository } from "typeorm";
@@ -31,6 +32,8 @@ export class StudentService {
 
     @InjectRepository(StudentContact)
     private readonly contactRepo: Repository<StudentContact>,
+    @InjectRepository(ClassRoom)
+    private readonly classRepo: Repository<ClassRoom>,
   ) {}
 
   logger = new Logger(StudentService.name);
@@ -47,40 +50,12 @@ export class StudentService {
     });
   }
 
-  // // Get students by session
-  // async getStudentsBySession(session: string): Promise<Student[]> {
-  //   try {
-  //     const students = await this.studentRepo.find({
-  //       where: { class: { session: { id: session } } },
-  //       relations: ["profile", "class"],
-  //     });
-  //     return students;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
-  // // Get students by class
-  // async getStudentsByClass(classId: string): Promise<Student[]> {
-  //   try {
-  //     const students = await this.studentRepo.find({
-  //       where: { class: { id: classId } },
-  //       relations: ["profile", "class"],
-  //     });
-
-  //     return students;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
   // Get Student
   async getStudent(id: string): Promise<Student> {
     try {
       const student = await this.studentRepo.findOne({
         where: { id },
         relations: [
-          "class",
           "profile",
           "profile.family",
           "profile.student",
@@ -88,6 +63,12 @@ export class StudentService {
         ],
       });
       if (!student) throw new NotFoundException("Student not found");
+
+      const classRoom = await this.classRepo.findOne({
+        where: { session: { isCurrent: true }, students: { id } },
+      });
+
+      student.class = classRoom;
 
       return student;
     } catch (error) {

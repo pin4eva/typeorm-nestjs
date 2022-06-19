@@ -22,6 +22,14 @@ type Auth {
   profile: Profile!
 }
 
+input BulkAttendanceInput {
+  classId: String!
+  date: String!
+  studentIds: [String!]!
+  term: String!
+  week: Int!
+}
+
 input ChangeAuthPasswordInput {
   id: ID!
   oldPassword: String!
@@ -167,6 +175,7 @@ type Mutation {
   changeAuthPassword(input: ChangeAuthPasswordInput!): Boolean!
   clearFamily: Boolean!
   createAttendance(input: CreateAttendanceInput!): Attendance!
+  createBulkAttendance(input: BulkAttendanceInput!): [Attendance!]!
   createClass(input: CreateClassInput!): ClassRoom!
   createFamily(input: CreateFamilyInput!): Family!
   createFamilyHospital(input: CreateFamilyHospitalInput!): FamilyHospital!
@@ -280,6 +289,7 @@ input SignupInput {
 
 type Student {
   attendance: [Attendance!]!
+  class: ClassRoom!
   contacts: [StudentContact!]!
   id: ID!
   medicalRecord: StudentMedical
