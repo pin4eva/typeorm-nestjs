@@ -2,6 +2,11 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input AddStudentToClassInput {
+  classId: ID!
+  studentId: ID!
+}
+
 type Attendance {
   class: ClassRoom!
   date: Timestamp!
@@ -158,6 +163,7 @@ type LoginResponse {
 }
 
 type Mutation {
+  addStudentToClass(input: AddStudentToClassInput!): ClassRoom!
   changeAuthPassword(input: ChangeAuthPasswordInput!): Boolean!
   clearFamily: Boolean!
   createAttendance(input: CreateAttendanceInput!): Attendance!
@@ -274,7 +280,6 @@ input SignupInput {
 
 type Student {
   attendance: [Attendance!]!
-  class: ClassRoom!
   contacts: [StudentContact!]!
   id: ID!
   medicalRecord: StudentMedical

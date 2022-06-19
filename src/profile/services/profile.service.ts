@@ -24,12 +24,12 @@ import {
 } from "../dto/profile.dto";
 
 import { Profile } from "../entities/profile.entity";
-import { Student } from '../../student/entities/student.entity';
+import { Student } from "../../student/entities/student.entity";
 import { FamilyRoleEnum } from "../interfaces/famiy.interface";
 import { AccountTypeEnum } from "../interfaces/profile.interface";
 import { FamilyService } from "../../family/services/family.service";
-import { Family } from 'src/family/entities/Family.entity';
-import { FamilyMember } from 'src/family/entities/FamilyMember.entity';
+import { Family } from "src/family/entities/Family.entity";
+import { FamilyMember } from "src/family/entities/FamilyMember.entity";
 
 @Injectable()
 export class ProfileService {
@@ -44,7 +44,7 @@ export class ProfileService {
     private readonly classRepo: Repository<ClassRoom>,
     @InjectRepository(FamilyMember)
     private readonly memberRepo: Repository<FamilyMember>,
-  ) { }
+  ) {}
   private readonly logger = new Logger(ProfileService.name);
 
   async createProfile(input: CreateProfileInput): Promise<Profile> {
@@ -93,11 +93,12 @@ export class ProfileService {
     });
 
     let createdStudent: Student;
-
+    let classRoom: ClassRoom;
     // If the account is a Student account, create a student profile also
     if (accountType === AccountTypeEnum.Student) {
-      const classRoom = await this.classRepo.findOneByOrFail({
-        id: input.class,
+      classRoom = await this.classRepo.findOneOrFail({
+        where: { id: input.class },
+        relations: ["students"],
       });
 
       const student = this.studentRepo.create({
@@ -105,8 +106,11 @@ export class ProfileService {
         id: generateID(),
       });
 
-      student.class = classRoom;
+      const classStudents = classRoom.students;
       student.profile = user;
+      classRoom.students = classStudents?.length
+        ? [...classStudents, student]
+        : [student];
 
       createdStudent = student;
     }
@@ -145,16 +149,15 @@ export class ProfileService {
     user.lastSeen = new Date(Date.now());
 
     try {
-
       await this.profileRepo.save(user);
       await this.cache.set("name", name);
       if (createdStudent) {
         await this.studentRepo.save(createdStudent);
+        await this.classRepo.save(classRoom);
       }
       if (Boolean(isMember)) {
         await this.memberRepo.save(isMember);
       }
-
 
       const mappedResult: Profile = {
         ...user,
@@ -330,7 +333,7 @@ export class ProfileService {
     }
   }
 
-  async updateAccountType() { }
+  // async updateAccountType() {}
 
   private async createRegNo() {
     const students = await this.studentRepo.find();

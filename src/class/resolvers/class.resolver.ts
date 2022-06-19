@@ -1,5 +1,6 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
-import { CreateClassInput } from "../dtos/class.dto";
+import { Student } from "src/student/entities/student.entity";
+import { AddStudentToClassInput, CreateClassInput } from "../dtos/class.dto";
 import { UpdateClassInput } from "../dtos/update-class.dto";
 import { ClassRoom } from "../entities/class.entity";
 import { ClassService } from "../services/class.service";
@@ -34,5 +35,20 @@ export class ClassResolver {
   async getClassesBySession(@Args("session") session: string) {
     const classRooms = await this.classService.getClassesBySession(session);
     return classRooms;
+  }
+
+  @Mutation(() => ClassRoom)
+  addStudentToClass(@Args("input") input: AddStudentToClassInput) {
+    return this.classService.addStudentToClass(input);
+  }
+
+  @Query(() => [Student])
+  getStudentsBySession(@Args("session") session: string) {
+    return this.classService.getStudentsBySession(session);
+  }
+
+  @Query(() => [Student])
+  getStudentsByClass(@Args("classId") classId: string) {
+    return this.classService.getStudentsByClass(classId);
   }
 }

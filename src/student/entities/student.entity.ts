@@ -1,12 +1,10 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql";
 import { Attendance } from "src/attendance/entities/attendance.entity";
-import { ClassRoom } from "src/class/entities/class.entity";
 import {
   AfterLoad,
   Column,
   Entity,
   JoinColumn,
-  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryColumn,
@@ -21,12 +19,12 @@ export class Student {
   @Field(() => ID)
   @PrimaryColumn("character varying")
   id: string;
-  @Field(() => ClassRoom)
-  @ManyToOne(() => ClassRoom, (inverse) => inverse.students, {
-    orphanedRowAction: "delete",
-  })
+  // @Field(() => [ClassRoom])
+  // @ManyToMany(() => ClassRoom, (inverse) => inverse.students, {
+  //   orphanedRowAction: "delete",
+  // })
   // @JoinTable()
-  class: ClassRoom;
+  // class: ClassRoom[];
   @Field(() => [String])
   @Column("simple-array", { nullable: true })
   subjects: string[];

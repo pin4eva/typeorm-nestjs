@@ -115,13 +115,59 @@ export class ClassService {
 
   async addStudentToClass(input: AddStudentToClassInput): Promise<ClassRoom> {
     const student = await this.studentRepo.findOneBy({ id: input.studentId });
-    const classRoom = await this.classRepo.findOneBy({ id: input.classId });
-    if (!student || !classRoom)
-      throw new NotFoundException("Invalid class or student ID");
+    const classRoom = await this.classRepo.findOne({
+      where: { id: input.classId },
+      relations: ["students"],
+    });
+
+    if (!student) throw new NotFoundException("Invalid student ID");
+    if (!classRoom) throw new NotFoundException("Invalid class ID");
 
     try {
-      student.class = classRoom;
+      // student.class = [classRoom];
+
+      // await this.studentRepo.save(student);
+      classRoom.students.push(student);
+      // classRoom.students = classStudents?.length
+      //   ? [...classStudents, student]
+      //   : [student];
+
+      await this.classRepo.save(classRoom);
       return classRoom;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Get students by session
+  async getStudentsBySession(session: string): Promise<Student[]> {
+    try {
+      const classes = await this.classRepo.find({
+        where: { session: { id: session } },
+        relations: ["students.profile", "students.profile.family"],
+      });
+
+      let students: Student[] = [];
+
+      for (const c of classes) {
+        students = [...students, ...c.students];
+      }
+
+      return students;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Get students by class
+  async getStudentsByClass(classId: string): Promise<Student[]> {
+    try {
+      const classRoom = await this.classRepo.findOne({
+        where: { id: classId },
+        relations: ["students.profile", "students.profile.family"],
+      });
+
+      return classRoom.students;
     } catch (error) {
       throw error;
     }

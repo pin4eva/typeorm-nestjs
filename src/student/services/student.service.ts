@@ -1,11 +1,21 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Student } from 'src/student/entities/student.entity';
-import { generateID } from 'src/utils/helpers';
+import { Student } from "src/student/entities/student.entity";
+import { generateID } from "src/utils/helpers";
 import { Repository } from "typeorm";
-import { CreateStudentContactInput, CreateStudentMedicalRecordInput, UpdateStudentContactInput, UpdateStudentMedicalRecordInput } from '../../profile/dto/student.dto';
-import { StudentContact } from '../entities/student-contact.entity';
-import { StudentMedical } from '../entities/student-medical.entity';
+import {
+  CreateStudentContactInput,
+  CreateStudentMedicalRecordInput,
+  UpdateStudentContactInput,
+  UpdateStudentMedicalRecordInput,
+} from "../../profile/dto/student.dto";
+import { StudentContact } from "../entities/student-contact.entity";
+import { StudentMedical } from "../entities/student-medical.entity";
 
 // import { ProfileService } from "./profile.service";
 
@@ -20,10 +30,10 @@ export class StudentService {
     private readonly medicalRepo: Repository<StudentMedical>,
 
     @InjectRepository(StudentContact)
-    private readonly contactRepo: Repository<StudentContact>
-  ) { }
+    private readonly contactRepo: Repository<StudentContact>,
+  ) {}
 
-  logger = new Logger(StudentService.name)
+  logger = new Logger(StudentService.name);
   /**
 @see: profile.service.ts for createStudent
  */
@@ -33,43 +43,49 @@ export class StudentService {
   // Get students
   async getStudents(): Promise<Student[]> {
     return await this.studentRepo.find({
-      relations: ["profile", "class", "profile.family"],
+      relations: ["profile", "profile.family"],
     });
   }
 
-  // Get students by session
-  async getStudentsBySession(session: string): Promise<Student[]> {
-    try {
-      const students = await this.studentRepo.find({
-        where: { class: { session: { id: session } } },
-        relations: ["profile", "class"],
-      });
-      return students;
-    } catch (error) {
-      throw error;
-    }
-  }
+  // // Get students by session
+  // async getStudentsBySession(session: string): Promise<Student[]> {
+  //   try {
+  //     const students = await this.studentRepo.find({
+  //       where: { class: { session: { id: session } } },
+  //       relations: ["profile", "class"],
+  //     });
+  //     return students;
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 
-  // Get students by class
-  async getStudentsByClass(classId: string): Promise<Student[]> {
-    try {
-      const students = await this.studentRepo.find({
-        where: { class: { id: classId } },
-        relations: ["profile", "class"],
-      });
+  // // Get students by class
+  // async getStudentsByClass(classId: string): Promise<Student[]> {
+  //   try {
+  //     const students = await this.studentRepo.find({
+  //       where: { class: { id: classId } },
+  //       relations: ["profile", "class"],
+  //     });
 
-      return students;
-    } catch (error) {
-      throw error;
-    }
-  }
+  //     return students;
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 
   // Get Student
   async getStudent(id: string): Promise<Student> {
     try {
       const student = await this.studentRepo.findOne({
         where: { id },
-        relations: ["class", "profile", "profile.family", "profile.student", "medicalRecord"],
+        relations: [
+          "class",
+          "profile",
+          "profile.family",
+          "profile.student",
+          "medicalRecord",
+        ],
       });
       if (!student) throw new NotFoundException("Student not found");
 
@@ -108,94 +124,102 @@ export class StudentService {
   /** Student Medicals */
 
   // getMedicalByStudentId
-  async getMedicalRecordByStudentId(studentId: string): Promise<StudentMedical> {
+  async getMedicalRecordByStudentId(
+    studentId: string,
+  ): Promise<StudentMedical> {
     try {
-      const medical = await this.medicalRepo.findOne({ where: { student: { id: studentId } }, relations: ["student"] });
+      const medical = await this.medicalRepo.findOne({
+        where: { student: { id: studentId } },
+        relations: ["student"],
+      });
       if (!medical) throw new NotFoundException("Invalid Student ID");
 
       return medical;
     } catch (error) {
-      this.logger.error(error)
-
+      this.logger.error(error);
     }
   }
 
   // createMedicalRecord
-  async createMedicalRecord(input: CreateStudentMedicalRecordInput): Promise<StudentMedical> {
+  async createMedicalRecord(
+    input: CreateStudentMedicalRecordInput,
+  ): Promise<StudentMedical> {
     const { studentId, ...rest } = input;
-    if (!input.studentId) throw new BadRequestException("Please include a student ID");
+    if (!input.studentId)
+      throw new BadRequestException("Please include a student ID");
 
-    const isMedical = await this.medicalRepo.findOne({ where: { student: { id: studentId } } });
+    const isMedical = await this.medicalRepo.findOne({
+      where: { student: { id: studentId } },
+    });
 
     if (isMedical) {
-      throw new BadRequestException("Student Medical already exist")
+      throw new BadRequestException("Student Medical already exist");
     }
 
     const student = await this.getStudent(input.studentId);
-    if (!student) throw new BadRequestException("Student not found")
+    if (!student) throw new BadRequestException("Student not found");
 
     try {
       const medical = this.medicalRepo.create(rest);
-      medical.id = generateID()
+      medical.id = generateID();
       medical.student = student;
 
-      await this.medicalRepo.save(medical)
+      await this.medicalRepo.save(medical);
       return medical;
     } catch (error) {
-      this.logger.error(error)
-
+      this.logger.error(error);
     }
   }
 
   // updateMedicalRecord
-  async updateMedicalRecord(input: UpdateStudentMedicalRecordInput): Promise<StudentMedical> {
-    const { id } = input
+  async updateMedicalRecord(
+    input: UpdateStudentMedicalRecordInput,
+  ): Promise<StudentMedical> {
+    const { id } = input;
     const medical = await this.medicalRepo.findOneByOrFail({ id });
     if (!medical) throw new NotFoundException("Invalid medical id");
 
     try {
       Object.assign(medical, input);
 
-      await this.medicalRepo.save(medical)
+      await this.medicalRepo.save(medical);
 
       return medical;
     } catch (error) {
-      this.logger.error(error)
-
+      this.logger.error(error);
     }
   }
-
 
   // deleteMedicalRecord
   async deleteMedicalRecord(id: string): Promise<StudentMedical> {
     const medical = await this.medicalRepo.findOneByOrFail({ id });
-    if (!medical) throw new NotFoundException("Invalid Medical ID")
+    if (!medical) throw new NotFoundException("Invalid Medical ID");
     try {
-
-      await this.medicalRepo.delete(id)
+      await this.medicalRepo.delete(id);
       return medical;
     } catch (error) {
-      this.logger.error(error)
-
+      this.logger.error(error);
     }
   }
-
 
   /**  Student Contact*/
 
   // Get Contacts by Student ID
   async getContactsByStudentId(id: string): Promise<StudentContact[]> {
     try {
-      const contacts = await this.contactRepo.find({ where: { student: { id } } });
-      return contacts
+      const contacts = await this.contactRepo.find({
+        where: { student: { id } },
+      });
+      return contacts;
     } catch (error) {
-      this.logger.error(error)
-
+      this.logger.error(error);
     }
   }
 
   // createContact
-  async createContact(input: CreateStudentContactInput): Promise<StudentContact> {
+  async createContact(
+    input: CreateStudentContactInput,
+  ): Promise<StudentContact> {
     const { studentId, ...rest } = input;
     const student = await this.getStudent(studentId);
     if (!student) throw new BadRequestException("Student ID is invalid");
@@ -205,29 +229,29 @@ export class StudentService {
       contact.id = generateID();
       contact.student = student;
 
-      await this.contactRepo.save(contact)
+      await this.contactRepo.save(contact);
 
       return contact;
     } catch (error) {
-      this.logger.error(error)
-
+      this.logger.error(error);
     }
   }
 
   // UpdateContact
-  async updateContact(input: UpdateStudentContactInput): Promise<StudentContact> {
+  async updateContact(
+    input: UpdateStudentContactInput,
+  ): Promise<StudentContact> {
     const { id } = input;
     const contact = await this.contactRepo.findOneBy({ id });
     if (!contact) throw new BadRequestException("Contact ID is invalid");
     try {
-      Object.assign(contact, input)
+      Object.assign(contact, input);
 
-      await this.contactRepo.save(contact)
+      await this.contactRepo.save(contact);
 
       return contact;
     } catch (error) {
-      this.logger.error(error)
-
+      this.logger.error(error);
     }
   }
 
@@ -236,13 +260,10 @@ export class StudentService {
     const contact = await this.contactRepo.findOneBy({ id });
     if (!contact) throw new NotFoundException("Invalid contact ID");
     try {
-      await this.contactRepo.delete(id)
+      await this.contactRepo.delete(id);
       return contact;
     } catch (error) {
-      this.logger.error(error)
-
+      this.logger.error(error);
     }
   }
-
-
 }

@@ -6,7 +6,8 @@ import { Student } from "src/student/entities/student.entity";
 import {
   Column,
   Entity,
-  JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryColumn,
@@ -35,8 +36,8 @@ export class ClassRoom {
   teacher: Profile;
 
   @Field(() => [Student], { nullable: true })
-  @OneToMany(() => Student, (inverse) => inverse.class, { cascade: true })
-  @JoinColumn()
+  @ManyToMany(() => Student, { cascade: true })
+  @JoinTable({ name: "class_students" })
   students: Student[];
 
   @Field(() => [Attendance])
