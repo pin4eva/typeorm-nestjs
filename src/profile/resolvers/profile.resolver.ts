@@ -2,7 +2,11 @@ import { UseGuards } from "@nestjs/common";
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { GQLAuthGaurd } from "src/guards/auth.guard";
 import { CurrentUser } from "src/middlewares/current-user.middleware";
-import { CreateProfileInput, UpdateProfileInput } from "../dto/profile.dto";
+import {
+  CreateProfileInput,
+  UpdateProfileInput,
+  UploadImageInput,
+} from "../dto/profile.dto";
 import { Profile } from "../entities/profile.entity";
 import { ProfileService } from "../services/profile.service";
 
@@ -38,6 +42,12 @@ export class ProfileResolver {
   @Mutation(() => Profile)
   async updateProfile(@Args("input") input: UpdateProfileInput) {
     return this.profileService.updateProfile(input);
+  }
+
+  @Mutation(() => String)
+  async uploadProfileImage(@Args("input") input: UploadImageInput) {
+    const profile = await this.profileService.uploadProfilePic(input);
+    return profile.image;
   }
   // @UseGuards(GQLAuthGaurd)
   @Mutation(() => Profile)

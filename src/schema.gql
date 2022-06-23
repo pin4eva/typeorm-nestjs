@@ -213,6 +213,7 @@ type Mutation {
   updateStudentContact(input: UpdateStudentContactInput!): StudentContact!
   updateStudentMedical(input: UpdateStudentMedicalRecordInput!): StudentMedical!
   updateSubject(input: UpdateSubjectInput!): Subject!
+  uploadProfileImage(input: UploadImageInput!): String!
 }
 
 type Profile {
@@ -409,4 +410,9 @@ input UpdateSubjectInput {
   code: String
   id: ID!
   name: String
+}
+
+input UploadImageInput {
+  id: String!
+  image: String!
 }
