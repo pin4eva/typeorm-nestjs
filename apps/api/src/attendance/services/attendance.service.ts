@@ -1,0 +1,160 @@
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+
+import { Repository } from "typeorm";
+import { ClassRoom } from "../../class/entities/class.entity";
+import { Student } from "../../student/entities/student.entity";
+import { generateID } from "../../utils/helpers";
+import {
+  BulkAttendanceInput,
+  CreateAttendanceInput,
+  FilterAttendanceInput,
+  UpdateAttendanceInput,
+} from "../dtos/attendance.dto";
+import { Attendance, TermEnum } from "../entities/attendance.entity";
+
+@Injectable()
+export class AttendanceService {
+  constructor(
+    @InjectRepository(Attendance)
+    private readonly attendanceRepo: Repository<Attendance>,
+  ) {}
+
+  logger = new Logger(Attendance.name);
+
+  // Create attendance
+  async createAttendance(payload: CreateAttendanceInput): Promise<Attendance> {
+    const { studentId, classId, term, week, date } = payload;
+
+    const student = new Student();
+    student.id = studentId;
+    const classRoom = new ClassRoom();
+    classRoom.id = classId;
+    try {
+      const attendance = this.attendanceRepo.create({
+        term: term as TermEnum,
+        date: new Date(date),
+        week,
+      });
+      attendance.class = classRoom;
+      attendance.student = student;
+      attendance.id = generateID();
+
+      await this.attendanceRepo.save(attendance);
+
+      return attendance;
+    } catch (error) {
+      this.logger.error(error);
+    }
+  }
+
+  // Update attendance
+  async updateAttendance(input: UpdateAttendanceInput): Promise<Attendance> {
+    const attendance = await this.getAttendanceById(input.id);
+    try {
+      Object.assign(attendance, input);
+      await this.attendanceRepo.save(attendance);
+
+      return attendance;
+    } catch (error) {
+      this.logger.error(error);
+    }
+  }
+
+  // bulk attendance
+
+  async createBulkAttendance(
+    input: BulkAttendanceInput,
+  ): Promise<Attendance[]> {
+    const classRoom = new ClassRoom();
+    classRoom.id = input.classId;
+
+    try {
+      const allAttendance: Attendance[] = [];
+      for (const studentId of input.studentIds) {
+        const attendance = this.attendanceRepo.create({
+          id: generateID(),
+          class: classRoom,
+          week: input.week,
+          date: new Date(input.date),
+          term: input.term as TermEnum,
+        });
+        const student = new Student();
+        student.id = studentId;
+        attendance.student = student;
+        await this.attendanceRepo.save(attendance);
+        allAttendance.push(attendance);
+      }
+
+      return allAttendance;
+    } catch (error) {
+      this.logger.error(error);
+    }
+  }
+
+  // delete Attendance
+  async deleteAttendance(id: string): Promise<Attendance> {
+    const attendance = await this.getAttendanceById(id);
+    try {
+      await this.attendanceRepo.delete(id);
+
+      return attendance;
+    } catch (error) {
+      this.logger.error(error);
+    }
+  }
+
+  async getAttendance(input: FilterAttendanceInput): Promise<Attendance[]> {
+    try {
+      let attendance: any = this.attendanceRepo
+        .createQueryBuilder("attendance")
+        .andWhere("attendance.classId = :classId", { classId: input.class })
+        .andWhere("attendance.term = :term", { term: input?.term });
+
+      attendance = input.week
+        ? attendance
+            .andWhere("attendance.week = :week", { week: Number(input.week) })
+            .getMany()
+        : attendance.getMany();
+
+      return attendance;
+    } catch (error) {
+      this.logger.error(error);
+    }
+  }
+
+  // Get attendance by Student, week
+  async getAttendanceByByStudent(
+    input: FilterAttendanceInput,
+  ): Promise<Attendance[]> {
+    try {
+      let attendance: any = this.attendanceRepo
+        .createQueryBuilder("attendance")
+        .where("attendance.studentId = :student", { student: input.student })
+        .andWhere("attendance.classId = :class", { class: input.class })
+        .andWhere("attendance.term = :term", { term: input.term });
+
+      attendance = input.week
+        ? attendance
+            .andWhere("attendance.week = :week", { week: Number(input.week) })
+            .getMany()
+        : attendance.getMany();
+
+      return attendance;
+    } catch (error) {
+      this.logger.error(error);
+    }
+  }
+
+  // get attendance
+  async getAttendanceById(id: string): Promise<Attendance> {
+    const attendance = await this.attendanceRepo.findOneBy({ id });
+
+    if (!attendance) throw new NotFoundException("Attendance not found");
+    try {
+      return attendance;
+    } catch (error) {
+      this.logger.error(error);
+    }
+  }
+}
