@@ -15,12 +15,15 @@ import { StudentModule } from "./student/student.module";
 import { config } from "./utils";
 import { AttendanceModule } from "./attendance/attendance.module";
 import { SubjectsModule } from "./subject/subject.module";
+import { ClientsModule, Transport } from "@nestjs/microservices";
+import { MAIL_CLIENT } from "@app/common";
 
 @Module({
   controllers: [AppController],
   providers: [AppService],
   imports: [
     AuthModule,
+    ClientsModule.register([{ name: MAIL_CLIENT, transport: Transport.TCP }]),
     TypeOrmModule.forRoot({
       type: "postgres",
       synchronize: true,
