@@ -5,6 +5,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { join } from "path";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
+import { AttendanceModule } from "./attendance/attendance.module";
 import { AuthModule } from "./auth/auth.module";
 import { ClassModule } from "./class/class.module";
 import { FamilyModule } from "./family/family.module";
@@ -12,18 +13,15 @@ import { CurrentUserMiddleware } from "./middlewares/current-user.middleware";
 import { ProfileSubscriber } from "./profile/entities/profile.entity";
 import { ProfileModule } from "./profile/profile.module";
 import { StudentModule } from "./student/student.module";
-import { config } from "./utils";
-import { AttendanceModule } from "./attendance/attendance.module";
 import { SubjectsModule } from "./subject/subject.module";
-import { ClientsModule, Transport } from "@nestjs/microservices";
-import { MAIL_CLIENT } from "@app/common";
+import { config } from "./utils";
 
 @Module({
   controllers: [AppController],
   providers: [AppService],
   imports: [
     AuthModule,
-    ClientsModule.register([{ name: MAIL_CLIENT, transport: Transport.TCP }]),
+
     TypeOrmModule.forRoot({
       type: "postgres",
       synchronize: true,

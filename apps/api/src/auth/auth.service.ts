@@ -1,6 +1,7 @@
 import {
   BadGatewayException,
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -20,6 +21,8 @@ import {
 } from "./dto/auth.dto";
 import { Auth } from "./entities/auth.entity";
 
+import { MailEventsEnum, MAIL_CLIENT } from "@app/common";
+import { ClientProxy } from "@nestjs/microservices";
 import { nanoid } from "nanoid";
 import { Profile } from "../profile/entities/profile.entity";
 import { generateID } from "../utils/helpers";
@@ -33,6 +36,7 @@ export class AuthService {
     @InjectRepository(Auth) private readonly authRepo: Repository<Auth>,
     @InjectRepository(Profile)
     private readonly profileRepo: Repository<Profile>,
+    @Inject(MAIL_CLIENT) private readonly mailClient: ClientProxy,
   ) {}
   async getAuths(): Promise<Auth[]> {
     try {
@@ -98,6 +102,11 @@ export class AuthService {
         { id: auth.profile?.id },
         config.SECRET,
       )}`;
+
+      this.mailClient.emit(MailEventsEnum.LOGGED_IN, {
+        email,
+        name: auth.profile?.name,
+      });
 
       return {
         token,
