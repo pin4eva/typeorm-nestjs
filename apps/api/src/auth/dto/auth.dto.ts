@@ -1,4 +1,4 @@
-import { Field, ID, InputType, ObjectType } from "@nestjs/graphql";
+import { Field, InputType, ObjectType } from "@nestjs/graphql";
 import { IsEmail, IsString } from "class-validator";
 
 @ObjectType()
@@ -33,7 +33,7 @@ export class LoginInput {
 }
 
 @InputType()
-export class ForgotPasswordInput {
+export class CreateNewPasswordInput {
   @Field()
   emailToken: string;
   @Field()
@@ -42,7 +42,6 @@ export class ForgotPasswordInput {
 
 @InputType()
 export class ChangeAuthPasswordInput {
-  @Field(() => ID)
   id: string;
   @Field()
   password: string;

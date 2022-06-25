@@ -31,7 +31,6 @@ input BulkAttendanceInput {
 }
 
 input ChangeAuthPasswordInput {
-  id: ID!
   oldPassword: String!
   password: String!
 }
@@ -75,6 +74,11 @@ input CreateFamilyMemberInput {
   family: ID!
   profile: ID!
   role: String!
+}
+
+input CreateNewPasswordInput {
+  emailToken: String!
+  password: String!
 }
 
 input CreateProfileInput {
@@ -155,11 +159,6 @@ input FilterAttendanceInput {
   week: Float
 }
 
-input ForgotPasswordInput {
-  emailToken: String!
-  password: String!
-}
-
 input LoginInput {
   email: String!
   password: String!
@@ -180,6 +179,7 @@ type Mutation {
   createFamily(input: CreateFamilyInput!): Family!
   createFamilyHospital(input: CreateFamilyHospitalInput!): FamilyHospital!
   createFamilyMember(input: CreateFamilyMemberInput!): FamilyMember!
+  createNewPassword(input: CreateNewPasswordInput!): Boolean!
   createProfile(input: CreateProfileInput!): Profile!
   createSession(input: CreateSessionInput!): Session!
   createStudentContact(input: CreateStudentContactInput!): StudentContact!
@@ -198,7 +198,6 @@ type Mutation {
   deleteStudentContact(id: String!): StudentContact!
   deleteStudentMedical(id: String!): StudentMedical!
   deleteSubject(id: String!): Subject!
-  forgotPassword(input: ForgotPasswordInput!): Boolean!
   login(input: LoginInput!): LoginResponse!
   resetPassword(email: String!): Boolean!
   restestAuth(profileId: String!): Profile!

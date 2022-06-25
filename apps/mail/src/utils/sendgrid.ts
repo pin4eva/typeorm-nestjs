@@ -9,7 +9,7 @@ interface MailPayload {
   email: string;
   subject: string;
   html: string;
-  name: string;
+  name?: string;
   dynamicTemplate?: string;
 }
 

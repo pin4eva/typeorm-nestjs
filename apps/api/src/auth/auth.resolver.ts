@@ -7,7 +7,7 @@ import { Profile } from "../profile/entities/profile.entity";
 import { AuthService } from "./auth.service";
 import {
   ChangeAuthPasswordInput,
-  ForgotPasswordInput,
+  CreateNewPasswordInput,
   LoginInput,
   LoginResponse,
   SignupInput,
@@ -51,8 +51,8 @@ export class AuthResolver {
   }
   // Forgot Password
   @Mutation(() => Boolean)
-  forgotPassword(@Args("input") input: ForgotPasswordInput) {
-    return this.authService.forgotPassword(input);
+  createNewPassword(@Args("input") input: CreateNewPasswordInput) {
+    return this.authService.createNewPassword(input);
   }
 
   // Change AuthPassword
@@ -62,7 +62,7 @@ export class AuthResolver {
     @Args("input") input: ChangeAuthPasswordInput,
     @CurrentUser() user: Profile,
   ) {
-    return this.authService.changeAuthPassword(input, user.id);
+    return this.authService.changeAuthPassword({ ...input, id: user.id });
   }
 
   // DeletePassword

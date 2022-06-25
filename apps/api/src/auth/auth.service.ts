@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
@@ -14,7 +15,7 @@ import { config } from "../utils";
 import { Repository } from "typeorm";
 import {
   ChangeAuthPasswordInput,
-  ForgotPasswordInput,
+  CreateNewPasswordInput,
   LoginInput,
   LoginResponse,
   SignupInput,
@@ -26,12 +27,10 @@ import { ClientProxy } from "@nestjs/microservices";
 import { nanoid } from "nanoid";
 import { Profile } from "../profile/entities/profile.entity";
 import { generateID } from "../utils/helpers";
-import { sendgrid } from "../utils/sendgrid";
-
-const { CLIENT_URL } = process.env;
 
 @Injectable()
 export class AuthService {
+  logger = new Logger(AuthService.name);
   constructor(
     @InjectRepository(Auth) private readonly authRepo: Repository<Auth>,
     @InjectRepository(Profile)
@@ -57,12 +56,7 @@ export class AuthService {
       if (!user?.email)
         throw new BadRequestException("Please make sure the email is correct");
 
-      // generate salt
-      const salt = bcrypt.genSaltSync(10);
-
-      // generate hash
-
-      const newPassword = salt + "-" + bcrypt.hashSync(password, 10);
+      const newPassword = await this.hashPassword(password);
 
       auth = this.authRepo.create({
         password: newPassword,
@@ -90,14 +84,7 @@ export class AuthService {
       if (!auth?.profile?.id)
         throw new UnauthorizedException("Register your account to login");
 
-      const storePassword = auth.password?.split("-")?.[1];
-
-      const isMatch = bcrypt.compareSync(password, storePassword);
-
-      if (!isMatch) {
-        throw new UnauthorizedException("Invalid email or password");
-      }
-
+      await this.comparePassword(auth.password, password);
       const token = `Bearer ${jwt.sign(
         { id: auth.profile?.id },
         config.SECRET,
@@ -162,17 +149,9 @@ export class AuthService {
 
     try {
       auth.emailToken = nanoid(6);
-      await sendgrid
-        .sendMail({
-          email: auth.email,
-          subject: "Continue to reset your password",
-          html: `<p>You requested to change your password, click the link below to continue</p> <a href='${CLIENT_URL}/forgot-password/${auth.emailToken}'>Reset Password now</a>`,
-        })
-        .catch((err) => {
-          throw new BadGatewayException(err);
-        });
 
       await this.authRepo.save(auth);
+      this.mailClient.emit(MailEventsEnum.RESET_PASSWORD, auth);
       return true;
     } catch (error) {
       throw error;
@@ -180,22 +159,23 @@ export class AuthService {
   }
 
   // Forgot password
-  async forgotPassword(data: ForgotPasswordInput): Promise<boolean> {
+  /**
+   * @description After the `resetPassword()` a mail is sent to create a new password
+   * @param data
+   * @returns Boolean
+   */
+  async createNewPassword(data: CreateNewPasswordInput): Promise<boolean> {
     try {
       const auth = await this.authRepo.findOne({
         where: { emailToken: data.emailToken },
       });
       if (!auth) throw new NotFoundException("Invalid credentials");
 
-      auth.password = bcrypt.hashSync(data.password, 10);
+      auth.password = await this.hashPassword(data.password);
       auth.emailToken = "";
 
-      await sendgrid.sendMail({
-        email: auth.email,
-        subject: "Password Reset Completed",
-        html: `Your password was successfully updated`,
-      });
       await this.authRepo.save(auth);
+      this.mailClient.emit(MailEventsEnum.CHANGED_PASSWORD, auth);
       return true;
     } catch (error) {
       throw error;
@@ -203,21 +183,19 @@ export class AuthService {
   }
 
   // change AuthPassword
-  async changeAuthPassword(
-    data: ChangeAuthPasswordInput,
-    userId: string,
-  ): Promise<boolean> {
-    try {
-      const user = await this.authRepo.findOne({
-        where: { profile: { id: userId } },
-      });
-      if (!user) throw new NotFoundException("No record found");
-      const isMatch = bcrypt.compareSync(data.oldPassword, user.password);
-      if (!isMatch) throw new UnauthorizedException("Invalid credentials");
+  async changeAuthPassword(data: ChangeAuthPasswordInput): Promise<boolean> {
+    const user = await this.authRepo.findOne({
+      where: { profile: { id: data.id } },
+    });
+    if (!user) throw new NotFoundException("No record found");
 
-      user.password = bcrypt.hashSync(data.password, 10);
+    try {
+      await this.comparePassword(user.password, data.oldPassword);
+
+      user.password = await this.hashPassword(data.password);
 
       await this.authRepo.save(user);
+
       return true;
     } catch (error) {
       throw error;
@@ -233,6 +211,36 @@ export class AuthService {
       return auth;
     } catch (error) {
       throw error;
+    }
+  }
+
+  private async hashPassword(password: string): Promise<string> {
+    // generate salt
+    const salt = bcrypt.genSaltSync(10);
+
+    // generate hash
+
+    const newPassword = salt + "-" + bcrypt.hashSync(password, 10);
+
+    return newPassword;
+  }
+
+  private async comparePassword(
+    hashedPassword: string,
+    plainPassword: string,
+  ): Promise<boolean> {
+    try {
+      const storePassword = hashedPassword?.split("-")?.[1];
+
+      const isMatch = bcrypt.compareSync(plainPassword, storePassword);
+
+      if (!isMatch) {
+        throw new UnauthorizedException("Invalid email or password");
+      }
+      return isMatch;
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadGatewayException("Incorrect email or password");
     }
   }
 }
