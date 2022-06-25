@@ -27,8 +27,7 @@ import { Family } from "../../family/entities/Family.entity";
 import { FamilyMember } from "../../family/entities/FamilyMember.entity";
 import { cloudinaryUpload } from "../../utils/cloudinary";
 import { generateFullName, generateID } from "../../utils/helpers";
-import { config } from "../../utils";
-import { MailEventsEnum, MAIL_CLIENT } from "@app/common";
+import { MailEventsEnum, MAIL_CLIENT, config } from "@app/common";
 import { ClientProxy } from "@nestjs/microservices";
 
 @Injectable()

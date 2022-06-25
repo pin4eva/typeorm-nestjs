@@ -1,5 +1,5 @@
+import { config } from "@app/common/utils/config";
 import * as Cloudinary from "cloudinary";
-import { config } from "./index";
 
 export const cloudinary = Cloudinary.v2;
 

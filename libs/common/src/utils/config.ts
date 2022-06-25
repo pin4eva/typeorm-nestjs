@@ -1,12 +1,18 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 
-const dockerMongo = `mongodb://${process.env.MONGO_INITDB_ROOT_USERNAME}:${process.env.MONGO_INITDB_ROOT_PASSWORD}@bdmis_mongo/${process.env.DB_NAME}?authSource=admin`;
+const DOCKER_POSTGRES_DATABASE = `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@bdmis_postgres/${process.env.POSTGRES_DB}`;
 
 export const config = {
-  MONGO_URI: process.env.DOCKER
-    ? dockerMongo
-    : process.env.MONGO_URI || "mongodb://localhost/bdmis",
+  // Database - Postgres
+  POSTGRES_URI: process.env.DOCKER
+    ? DOCKER_POSTGRES_DATABASE
+    : process.env.POSTGRES_URI ||
+      "postgres://postgres:peter@localhost:5432/bdmis",
+  POSTGRES_USER: process.env.POSTGRES_USER || "postgres",
+  POSTGRES_PASSWORD: process.env.POSTGRES_PASSWORD || "peter",
+  POSTGRES_DB: process.env.POSTGRES_DB || "bdmis",
+  POSTGRES_HOST: process.env.POSTGRES_HOST || "localhost",
   SECRET: process.env.SECRET || "kkfjfskfsks",
   CLOUDINARY_NAME: process.env.CLOUDINARY_NAME,
   CLOUDINARY_KEY: process.env.CLOUDINARY_KEY,

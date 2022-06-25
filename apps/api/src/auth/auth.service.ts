@@ -10,7 +10,6 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
-import { config } from "../utils";
 
 import { Repository } from "typeorm";
 import {
@@ -22,7 +21,7 @@ import {
 } from "./dto/auth.dto";
 import { Auth } from "./entities/auth.entity";
 
-import { MailEventsEnum, MAIL_CLIENT } from "@app/common";
+import { MailEventsEnum, MAIL_CLIENT, config } from "@app/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { nanoid } from "nanoid";
 import { Profile } from "../profile/entities/profile.entity";
