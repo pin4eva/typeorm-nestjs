@@ -28,6 +28,8 @@ import { FamilyMember } from "../../family/entities/FamilyMember.entity";
 import { cloudinaryUpload } from "../../utils/cloudinary";
 import { generateFullName, generateID } from "../../utils/helpers";
 import { config } from "../../utils";
+import { MailEventsEnum, MAIL_CLIENT } from "@app/common";
+import { ClientProxy } from "@nestjs/microservices";
 
 @Injectable()
 export class ProfileService {
@@ -42,6 +44,8 @@ export class ProfileService {
     private readonly classRepo: Repository<ClassRoom>,
     @InjectRepository(FamilyMember)
     private readonly memberRepo: Repository<FamilyMember>,
+
+    @Inject(MAIL_CLIENT) private readonly mailClient: ClientProxy,
   ) {}
   private readonly logger = new Logger(ProfileService.name);
 
@@ -152,6 +156,10 @@ export class ProfileService {
       }
       if (Boolean(isMember)) {
         await this.memberRepo.save(isMember);
+      }
+
+      if (!user.accountTypes?.includes(AccountTypeEnum.Student)) {
+        this.mailClient.emit(MailEventsEnum.INVITE_USER, user);
       }
 
       const mappedResult: Profile = {

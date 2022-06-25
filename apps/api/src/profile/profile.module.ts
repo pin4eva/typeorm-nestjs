@@ -1,4 +1,6 @@
+import { MAIL_CLIENT, MAIL_PORT } from "@app/common";
 import { Module, Session } from "@nestjs/common";
+import { ClientsModule, Transport } from "@nestjs/microservices";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ClassRoom } from "../class/entities/class.entity";
 import { Family } from "../family/entities/Family.entity";
@@ -24,6 +26,13 @@ import { ProfileService } from "./services/profile.service";
       FamilyHospital,
       ClassRoom,
       Session,
+    ]),
+    ClientsModule.register([
+      {
+        name: MAIL_CLIENT,
+        transport: Transport.TCP,
+        options: { port: +MAIL_PORT },
+      },
     ]),
   ],
   providers: [ProfileResolver, ProfileService, FamilyService],
