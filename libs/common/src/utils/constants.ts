@@ -7,4 +7,5 @@ export enum MailEventsEnum {
   PROFILE_CREATED = "PROFILE_CREATED",
   LOGGED_IN = "LOGGED_IN",
   INVITE_USER = "INVITE_USER",
+  RESET_AUTH = "RESET_AUTH",
 }

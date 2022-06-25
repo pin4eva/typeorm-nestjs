@@ -201,8 +201,10 @@ type Mutation {
   forgotPassword(input: ForgotPasswordInput!): Boolean!
   login(input: LoginInput!): LoginResponse!
   resetPassword(email: String!): Boolean!
+  restestAuth(profileId: String!): Profile!
+  sendInvite(id: String!): Boolean!
   setCurrentSession(id: String!): Boolean!
-  signup(input: SignupInput!): Auth!
+  signup(input: SignupInput!): Profile!
   updateAttendance(input: UpdateAttendanceInput!): Attendance!
   updateClass(input: UpdateClassInput!): ClassRoom!
   updateFamily(input: UpdateFamilyInput!): Family!
@@ -272,7 +274,6 @@ type Query {
   getSubjects: [Subject!]!
   me: Profile!
   searchProfilesByName(name: String!): [Profile!]!
-  sendInvit(id: String!): Boolean!
 }
 
 type Session {

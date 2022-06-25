@@ -45,7 +45,7 @@ export class AuthService {
       throw error;
     }
   }
-  async signup(input: SignupInput): Promise<Auth> {
+  async signup(input: SignupInput): Promise<Profile> {
     const { password, profileId } = input;
     try {
       const user = await this.profileRepo.findOne({ where: { id: profileId } });
@@ -77,7 +77,7 @@ export class AuthService {
       );
       await this.authRepo.save(auth);
       await this.profileRepo.save(user);
-      return auth;
+      return user;
     } catch (error) {
       throw error;
     }
@@ -125,19 +125,36 @@ export class AuthService {
     const auth = await this.authRepo.findOne({ where: { email: user.email } });
     if (auth) throw new BadRequestException("Email is already registered");
     try {
-      await sendgrid.sendMail({
-        email: user.email,
-        subject: "Create your profile",
-        html: `
-        <h1>Hello </h1>
-        <p>You have been invited to join <strong>BDMIS Portal</strong>. Click <a href='${CLIENT_URL}/account/${user.id}'>here</a> to create your profile on BDMIS Portal </p>
-        `,
-      });
+      this.mailClient.emit(MailEventsEnum.INVITE_USER, user);
       return true;
     } catch (error) {
       throw new BadGatewayException("Unable to send email");
     }
   }
+
+  // reset Auth incases where the email is no longer accessible but profile remains in auth
+  async resetAuth(profileId: string): Promise<Profile> {
+    // verify the profileId exists in Profile entiy
+    const auth = await this.authRepo.findOne({
+      where: { profile: { id: profileId } },
+    });
+    if (!auth)
+      throw new UnauthorizedException("You can not reset this account");
+
+    // delete the record to create a fresh one
+    await this.authRepo.delete(auth.id);
+
+    try {
+      const user = await this.profileRepo.findOne({ where: { id: profileId } });
+
+      this.mailClient.emit(MailEventsEnum.RESET_AUTH, user);
+
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // reset Password
   async resetPassword(email: string): Promise<boolean> {
     const auth = await this.authRepo.findOneBy({ email });

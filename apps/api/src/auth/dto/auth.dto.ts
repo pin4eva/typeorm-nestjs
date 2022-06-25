@@ -49,3 +49,16 @@ export class ChangeAuthPasswordInput {
   @Field()
   oldPassword: string;
 }
+
+@ObjectType()
+@InputType()
+export class ResetAuthInput {
+  @Field()
+  email: string;
+
+  @Field()
+  profileId: string;
+
+  @Field()
+  password: string;
+}

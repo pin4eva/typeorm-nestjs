@@ -23,7 +23,7 @@ export class AuthResolver {
     return this.authService.getAuths();
   }
 
-  @Mutation(() => Auth)
+  @Mutation(() => Profile)
   signup(@Args("input") input: SignupInput) {
     return this.authService.signup(input);
   }
@@ -33,8 +33,8 @@ export class AuthResolver {
   }
 
   // Send Invite
-  @Query(() => Boolean)
-  sendInvit(@Args("id") id: string) {
+  @Mutation(() => Boolean)
+  sendInvite(@Args("id") id: string) {
     return this.authService.sendInvite(id);
   }
 
@@ -42,6 +42,12 @@ export class AuthResolver {
   @Mutation(() => Boolean)
   resetPassword(@Args("email") email: string) {
     return this.authService.resetPassword(email);
+  }
+
+  // Reset Auth. ie delete auth and create a new oe with updated email
+  @Mutation(() => Profile)
+  restestAuth(@Args("profileId") profileId: string) {
+    return this.authService.resetAuth(profileId);
   }
   // Forgot Password
   @Mutation(() => Boolean)
