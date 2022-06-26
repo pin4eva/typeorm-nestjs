@@ -2,11 +2,14 @@ version: "3"
 
 services:
   api:
+    container_name: bdmis_api
     build:
       context: .
       dockerfile: ./apps/api/Dockerfile
-      target: development
-    command: npm run dev
+      target: production #development
+    # command: npm run dev
+    environment:
+      - DOCKER=TRUE
     env_file:
       - .env
     depends_on:
@@ -19,11 +22,12 @@ services:
 
   # Mail app
   mail:
+    container_name: bdmis_mail
     build:
       context: .
       dockerfile: ./apps/mail/Dockerfile
-      target: development
-    command: npm run dev mail
+      target: production #development
+    # command: npm run dev mail
     env_file:
       - .env
     depends_on:

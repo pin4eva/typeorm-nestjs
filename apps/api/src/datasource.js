@@ -7,6 +7,8 @@ const DB_CONFIG = {
   POSTGRES_HOST: process.env.DOCKER ? process.env.POSTGRES_HOST : "localhost",
 };
 
+// console.log("__dirname", __dirname + `/src/migrations`);
+
 export const typeormDbOptions = {
   type: "postgres",
   username: DB_CONFIG.POSTGRES_USER,
@@ -15,10 +17,11 @@ export const typeormDbOptions = {
   database: DB_CONFIG.POSTGRES_DB,
   synchronize: false,
   autoLoadEntities: true,
-  entities: ["**/*.entity.js"],
+  // entities: ["**/*.entity.js"],
   logging: ["error", "query"],
   migrationsTableName: "migration",
-  migrations: [__dirname + "/migrations/**/*{.ts,.js}"],
+  migrations: ["dist/src/migrations/**/*{.ts,.js}"],
+  // migrations: [__dirname + "/src/migrations/**/*{.ts,.js}"],
   migrationsRun: true,
   cli: {
     migrationsDir: "src/migrations",

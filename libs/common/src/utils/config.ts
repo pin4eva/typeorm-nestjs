@@ -12,7 +12,7 @@ export const config = {
   POSTGRES_USER: process.env.POSTGRES_USER || "postgres",
   POSTGRES_PASSWORD: process.env.POSTGRES_PASSWORD || "peter",
   POSTGRES_DB: process.env.POSTGRES_DB || "bdmis",
-  POSTGRES_HOST: process.env.POSTGRES_HOST || "localhost",
+  POSTGRES_HOST: process.env.DOCKER ? process.env.POSTGRES_HOST : "localhost",
   SECRET: process.env.SECRET || "kkfjfskfsks",
   CLOUDINARY_NAME: process.env.CLOUDINARY_NAME,
   CLOUDINARY_KEY: process.env.CLOUDINARY_KEY,
