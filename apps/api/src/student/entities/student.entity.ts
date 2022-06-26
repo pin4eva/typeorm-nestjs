@@ -4,6 +4,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryColumn,
@@ -11,6 +12,7 @@ import {
 import { Attendance } from "../../attendance/entities/attendance.entity";
 import { ClassRoom } from "../../class/entities/class.entity";
 import { Profile } from "../../profile/entities/profile.entity";
+import { Subject } from "../../subject/entities/subject.entity";
 import { StudentContact } from "./student-contact.entity";
 import { StudentMedical } from "./student-medical.entity";
 
@@ -22,9 +24,9 @@ export class Student {
   id: string;
   @Field(() => ClassRoom)
   class: ClassRoom;
-  @Field(() => [String])
-  @Column("simple-array", { nullable: true })
-  subjects: string[];
+  @Field(() => [Subject])
+  @ManyToOne(() => Subject)
+  subjects: Subject[];
   @Field(() => Profile, { nullable: true })
   @OneToOne(() => Profile, (profile) => profile.student, {
     onDelete: "CASCADE",

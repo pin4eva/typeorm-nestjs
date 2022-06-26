@@ -4,8 +4,6 @@ import {
   BeforeInsert,
   Column,
   Entity,
-  EntitySubscriberInterface,
-  EventSubscriber,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -13,11 +11,11 @@ import {
   Unique,
 } from "typeorm";
 
-import { AccountTypeEnum } from "../interfaces/profile.interface";
-import { Student } from "../../student/entities/student.entity";
 import { ClassRoom } from "../../class/entities/class.entity";
 import { Family } from "../../family/entities/Family.entity";
+import { Student } from "../../student/entities/student.entity";
 import { generateFullName } from "../../utils/helpers";
+import { AccountTypeEnum } from "../interfaces/profile.interface";
 
 @ObjectType()
 @Entity()
@@ -154,18 +152,5 @@ export class Profile {
       otherName: this.otherName,
       lastName: this.lastName,
     });
-  }
-}
-
-@EventSubscriber()
-export class ProfileSubscriber implements EntitySubscriberInterface<Profile> {
-  listenTo() {
-    return Profile;
-  }
-
-  async afterLoad(profile: Profile) {
-    profile.name = `${profile.firstName} ${profile.middleName}${
-      profile.otherName ? ` ${profile.otherName}` : ""
-    } ${profile.lastName}`;
   }
 }
